@@ -1,0 +1,208 @@
+<div class="users-container">
+  <!-- Header -->
+  <div class="users-header">
+    <div class="header-content">
+      <h1><i class="now-ui-icons business_badge section-icon"></i> Gestión de Usuarios y Roles</h1>
+      <p>Administra usuarios, roles y permisos del sistema</p>
+    </div>
+  </div>
+
+  <!-- Message -->
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">
+    {{ message }}
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <button class="tab-btn" [class.active]="activeTab === 'users'" (click)="switchTab('users')">
+      <i class="now-ui-icons users_single-02"></i> Usuarios
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'roles'" (click)="switchTab('roles')">
+      <i class="now-ui-icons objects_key-25"></i> Roles y Permisos
+    </button>
+  </div>
+
+  <!-- ============ TAB: USUARIOS ============ -->
+  <div *ngIf="activeTab === 'users'">
+    <div class="tab-header">
+      <h2>Usuarios del Sistema</h2>
+      <button class="btn-create" (click)="openCreateUser()">
+        <i class="now-ui-icons ui-1_simple-add"></i>
+        <span>Nuevo Usuario</span>
+      </button>
+    </div>
+
+    <div class="loading-spinner" *ngIf="loadingUsers">
+      <div class="spinner"></div>
+      <p>Cargando...</p>
+    </div>
+
+    <div class="table-container" *ngIf="!loadingUsers">
+      <table class="data-table" *ngIf="users.length > 0; else noUsers">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td><strong>{{ user.username }}</strong></td>
+            <td>
+              <span *ngFor="let role of user.roles" class="badge-role" [ngClass]="{'badge-admin': role === 'ROLE_ADMIN', 'badge-worker': role !== 'ROLE_ADMIN'}">
+                {{ getRolDisplayName(role) }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" title="Editar" (click)="openEditUser(user)">
+                <i class="now-ui-icons ui-2_settings-90"></i>
+              </button>
+              <button class="btn-icon btn-delete" title="Eliminar" (click)="deleteUser(user)">
+                <i class="now-ui-icons ui-1_simple-remove"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noUsers>
+        <div class="empty-state">
+          <i class="now-ui-icons users_single-02"></i>
+          <p>No hay usuarios registrados</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- ============ TAB: ROLES ============ -->
+  <div *ngIf="activeTab === 'roles'">
+    <div class="tab-header">
+      <h2>Roles del Sistema</h2>
+      <button class="btn-create" (click)="openCreateRole()">
+        <i class="now-ui-icons ui-1_simple-add"></i>
+        <span>Nuevo Rol</span>
+      </button>
+    </div>
+
+    <div class="loading-spinner" *ngIf="loadingRoles">
+      <div class="spinner"></div>
+      <p>Cargando...</p>
+    </div>
+
+    <div class="roles-grid" *ngIf="!loadingRoles">
+      <div class="role-card" *ngFor="let role of roles" [class.admin-card]="isAdminRole(role)">
+        <div class="role-card-header">
+          <div class="role-name">
+            <i class="now-ui-icons objects_key-25"></i>
+            <h3>{{ getRolDisplayName(role.name) }}</h3>
+          </div>
+          <div class="role-actions" *ngIf="!isAdminRole(role)">
+            <button class="btn-icon btn-edit" title="Editar permisos" (click)="openEditRole(role)">
+              <i class="now-ui-icons ui-2_settings-90"></i>
+            </button>
+            <button class="btn-icon btn-delete" title="Eliminar" (click)="deleteRole(role)">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+          </div>
+          <div class="role-actions" *ngIf="isAdminRole(role)">
+            <span class="badge-admin-full">Acceso Total</span>
+          </div>
+        </div>
+        <div class="role-card-body">
+          <p class="modules-label">Módulos con acceso:</p>
+          <div class="module-tags" *ngIf="!isAdminRole(role)">
+            <span class="module-tag" *ngFor="let mod of role.modules">
+              {{ getModuleLabels([mod]) }}
+            </span>
+            <span *ngIf="!role.modules || role.modules.length === 0" class="no-modules">Sin permisos asignados</span>
+          </div>
+          <div class="module-tags" *ngIf="isAdminRole(role)">
+            <span class="module-tag admin-tag" *ngFor="let mod of allModules">
+              {{ mod.label }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="roles.length === 0" class="empty-state">
+        <i class="now-ui-icons objects_key-25"></i>
+        <p>No hay roles creados</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: CREAR/EDITAR USUARIO ============ -->
+  <div class="modal-overlay" *ngIf="showUserModal" (click)="showUserModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingUser ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+        <button class="btn-close" (click)="showUserModal = false">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Usuario</label>
+          <input type="text" class="form-input" [(ngModel)]="userForm.username" [disabled]="editingUser !== null" placeholder="Nombre de usuario" />
+        </div>
+        <div class="form-group">
+          <label>{{ editingUser ? 'Nueva Contraseña (dejar vacío para no cambiar)' : 'Contraseña' }}</label>
+          <input type="password" class="form-input" [(ngModel)]="userForm.password" placeholder="Contraseña" />
+        </div>
+        <div class="form-group">
+          <label>Rol</label>
+          <select class="form-input" [(ngModel)]="selectedRole">
+            <option *ngFor="let role of roles" [value]="role.name">{{ getRolDisplayName(role.name) }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="showUserModal = false">Cancelar</button>
+        <button class="btn-save" (click)="saveUser()">{{ editingUser ? 'Guardar Cambios' : 'Crear Usuario' }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: CREAR/EDITAR ROL ============ -->
+  <div class="modal-overlay" *ngIf="showRoleModal" (click)="showRoleModal = false">
+    <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editingRole ? 'Editar Permisos del Rol' : 'Nuevo Rol' }}</h3>
+        <button class="btn-close" (click)="showRoleModal = false">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" *ngIf="!editingRole">
+          <label>Nombre del Rol</label>
+          <input type="text" class="form-input" [(ngModel)]="roleForm.name" placeholder="Ej: ROLE_CAJERO" />
+          <small class="form-hint">Use el prefijo ROLE_ seguido del nombre (ej: ROLE_SUPERVISOR)</small>
+        </div>
+        <div class="form-group" *ngIf="editingRole">
+          <label>Rol: <strong>{{ getRolDisplayName(editingRole.name) }}</strong></label>
+        </div>
+
+        <div class="modules-section">
+          <div class="modules-header">
+            <label>Seleccionar Módulos</label>
+            <div class="modules-actions">
+              <button class="btn-sm" (click)="selectAllModules()">Seleccionar todos</button>
+              <button class="btn-sm btn-sm-outline" (click)="deselectAllModules()">Deseleccionar todos</button>
+            </div>
+          </div>
+
+          <div class="modules-grid">
+            <label class="module-checkbox" *ngFor="let mod of allModules">
+              <input type="checkbox" [(ngModel)]="selectedModules[mod.key]" />
+              <span class="checkbox-custom"></span>
+              <i class="now-ui-icons" [ngClass]="mod.icon"></i>
+              <span class="module-name">{{ mod.label }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="showRoleModal = false">Cancelar</button>
+        <button class="btn-save" (click)="saveRole()">{{ editingRole ? 'Guardar Permisos' : 'Crear Rol' }}</button>
+      </div>
+    </div>
+  </div>
+</div>

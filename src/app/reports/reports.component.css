@@ -1,0 +1,683 @@
+/* ========================================
+   REPORTS CONTAINER
+   ======================================== */
+
+.reports-container {
+  min-height: 100%;
+  font-family: 'Roboto', sans-serif;
+  padding-bottom: 30px;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.reports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #1a1a1a;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-icon {
+  font-size: 26px;
+  color: #fdc830;
+}
+
+.header-content p {
+  margin: 4px 0 0;
+  color: #999;
+  font-size: 13px;
+}
+
+.btn-refresh {
+  background: #fdc830;
+  color: #1a1a1a;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-refresh:hover {
+  background: #f5c000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(253, 200, 48, 0.3);
+}
+
+/* ========================================
+   PERIOD TABS
+   ======================================== */
+
+.period-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.period-tabs button {
+  padding: 10px 20px;
+  border: 2px solid #e0e0e0;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.period-tabs button:hover {
+  border-color: #fdc830;
+  color: #1a1a1a;
+}
+
+.period-tabs button.active {
+  background: #fdc830;
+  border-color: #fdc830;
+  color: #1a1a1a;
+}
+
+/* ========================================
+   CUSTOM FILTER
+   ======================================== */
+
+.custom-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-group input {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  transition: border-color 0.2s;
+}
+
+.filter-group input:focus {
+  outline: none;
+  border-color: #fdc830;
+}
+
+.btn-search {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-search:hover {
+  background: #333;
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   LOADING & ERROR
+   ======================================== */
+
+.loading-container,
+.error-container {
+  text-align: center;
+  padding: 80px 20px;
+  color: #999;
+}
+
+.loading-container .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f0f0f0;
+  border-top-color: #fdc830;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-container i {
+  font-size: 40px;
+  color: #e74c3c;
+  margin-bottom: 12px;
+  display: block;
+}
+
+/* ========================================
+   PERIOD LABEL
+   ======================================== */
+
+.period-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.period-label span:first-child {
+  font-weight: 700;
+  color: #1a1a1a;
+  font-size: 16px;
+}
+
+.period-dates {
+  font-size: 12px;
+  color: #999;
+  padding: 4px 12px;
+  background: #f5f5f5;
+  border-radius: 20px;
+}
+
+/* ========================================
+   KPI CARDS
+   ======================================== */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #ddd;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* KPI Color Variants */
+.kpi-green { border-left-color: #4CAF50; }
+.kpi-green .kpi-icon { background: rgba(76, 175, 80, 0.1); color: #4CAF50; }
+
+.kpi-red { border-left-color: #e74c3c; }
+.kpi-red .kpi-icon { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+
+.kpi-profit { border-left-color: #2e7d32; }
+.kpi-profit .kpi-icon { background: rgba(46, 125, 50, 0.1); color: #2e7d32; }
+.kpi-profit .kpi-value { color: #2e7d32; }
+
+.kpi-loss { border-left-color: #c62828; }
+.kpi-loss .kpi-icon { background: rgba(198, 40, 40, 0.1); color: #c62828; }
+.kpi-loss .kpi-value { color: #c62828; }
+
+.kpi-blue { border-left-color: #2196F3; }
+.kpi-blue .kpi-icon { background: rgba(33, 150, 243, 0.1); color: #2196F3; }
+
+/* ========================================
+   STATS ROW
+   ======================================== */
+
+.stats-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fff;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #666;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stat-chip i {
+  color: #fdc830;
+}
+
+.stat-chip strong {
+  color: #1a1a1a;
+}
+
+/* ========================================
+   TABLES
+   ======================================== */
+
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.table-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.table-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-header h3 i {
+  color: #fdc830;
+}
+
+.table-body {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.table-body table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-body table thead th {
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  white-space: nowrap;
+}
+
+.table-body table tbody td {
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #333;
+  border-bottom: 1px solid #f8f8f8;
+}
+
+.table-body table tbody tr:hover {
+  background: #fafafa;
+}
+
+.table-body table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-body table tfoot td {
+  padding: 12px 16px;
+  font-size: 13px;
+  background: #fafafa;
+  border-top: 2px solid #e0e0e0;
+}
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable:hover {
+  color: #fdc830;
+}
+
+/* Cell Styles */
+.date-cell {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.code-cell {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  color: #666;
+}
+
+.revenue-cell {
+  color: #4CAF50;
+  font-weight: 600;
+}
+
+.cost-cell {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.profit-positive {
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+.profit-negative {
+  color: #c62828;
+  font-weight: 700;
+}
+
+/* Margin Badge */
+.margin-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.margin-good {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.margin-ok {
+  background: rgba(255, 152, 0, 0.1);
+  color: #FF9800;
+}
+
+.margin-low {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+
+/* Table Empty State */
+.table-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #ccc;
+}
+
+.table-empty i {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.table-empty p {
+  font-size: 13px;
+  color: #999;
+}
+
+/* ========================================
+   PERIOD TOTALS
+   ======================================== */
+
+.period-totals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 20px;
+}
+
+.period-total-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 10px;
+  background: #fff;
+  border: 2px solid #f0f0f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.period-total-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.period-total-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.period-today .period-total-icon {
+  background: rgba(33, 150, 243, 0.1);
+  color: #2196F3;
+}
+
+.period-today {
+  border-color: rgba(33, 150, 243, 0.3);
+}
+
+.period-week .period-total-icon {
+  background: rgba(156, 39, 176, 0.1);
+  color: #9C27B0;
+}
+
+.period-week {
+  border-color: rgba(156, 39, 176, 0.3);
+}
+
+.period-month .period-total-icon {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.period-month {
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.period-total-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.period-total-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.period-total-label {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ========================================
+   PAYMENT METHOD SECTION
+   ======================================== */
+
+.payment-methods-section {
+  padding: 20px;
+}
+
+.payment-method-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.payment-method-card {
+  background: #fff;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.payment-method-card:hover {
+  border-color: #fdc830;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(253, 200, 48, 0.2);
+}
+
+.payment-method-card.selected {
+  border-color: #fdc830;
+  background: rgba(253, 200, 48, 0.08);
+  box-shadow: 0 4px 12px rgba(253, 200, 48, 0.2);
+}
+
+.pm-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 6px;
+  text-transform: capitalize;
+}
+
+.pm-total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4CAF50;
+  margin-bottom: 4px;
+}
+
+.pm-count {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .reports-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .period-tabs {
+    flex-direction: column;
+  }
+
+  .period-tabs button {
+    width: 100%;
+  }
+
+  .custom-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-content h1 {
+    font-size: 22px;
+  }
+
+  .kpi-value {
+    font-size: 20px;
+  }
+
+  .period-totals-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-method-cards {
+    grid-template-columns: 1fr;
+  }
+}

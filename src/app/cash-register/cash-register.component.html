@@ -1,0 +1,266 @@
+<div class="caja-container">
+  <div class="section-header">
+    <h1><i class="now-ui-icons business_money-coins section-icon"></i> Caja Registradora</h1>
+    <p>Administra la apertura, cierre y movimientos de tu caja del día</p>
+  </div>
+
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">{{ message }}</div>
+
+  <!-- LOADING -->
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Consultando estado de la caja...</p>
+  </div>
+
+  <!-- ============ CAJA ABIERTA ============ -->
+  <div *ngIf="!loading && cashRegister" class="caja-abierta">
+    <!-- Estado -->
+    <div class="status-bar open">
+      <span class="status-dot"></span>
+      <strong>Caja Abierta</strong>
+      <span class="status-date">Desde: {{ formatDate(cashRegister.openingDate) }}</span>
+    </div>
+
+    <!-- Tarjetas resumen -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <span class="card-label">Base</span>
+        <span class="card-value">{{ formatPrice(cashRegister.openingAmount) }}</span>
+      </div>
+      <div class="summary-card highlight">
+        <span class="card-label">Ventas</span>
+        <span class="card-value">{{ formatPrice(cashRegister.totalSales) }}</span>
+        <span class="card-sub">{{ cashRegister.saleCount }} venta(s)</span>
+      </div>
+      <div class="summary-card primary">
+        <span class="card-label">Esperado en Caja</span>
+        <span class="card-value">{{ formatPrice(cashRegister.expectedAmount) }}</span>
+      </div>
+      <div class="summary-card expense">
+        <span class="card-label">Gastos</span>
+        <span class="card-value">-{{ formatPrice(cashRegister.totalExpenses) }}</span>
+      </div>
+      <div class="summary-card withdrawal">
+        <span class="card-label">Retiros</span>
+        <span class="card-value">-{{ formatPrice(cashRegister.totalWithdrawals) }}</span>
+      </div>
+      <div class="summary-card income">
+        <span class="card-label">Ingresos</span>
+        <span class="card-value">{{ formatPrice(cashRegister.totalIncomes) }}</span>
+      </div>
+    </div>
+
+    <!-- Botón agregar movimiento -->
+    <div class="actions-bar">
+      <button class="btn btn-secondary" (click)="openMovementModal()">
+        <i class="now-ui-icons ui-1_simple-add"></i> Agregar Movimiento
+      </button>
+      <button class="btn btn-danger" (click)="openCloseModal()">
+        <i class="now-ui-icons ui-1_lock-circle-open"></i> Cerrar Caja
+      </button>
+    </div>
+
+    <!-- Tabla de movimientos -->
+    <div class="movements-section">
+      <h3>Movimientos del Día</h3>
+      <div class="table-wrapper" *ngIf="cashRegister.movements?.length; else noMovements">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Tipo</th>
+              <th>Descripción</th>
+              <th>Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let mov of cashRegister.movements" [ngClass]="'row-' + mov.type.toLowerCase()">
+              <td>{{ formatTime(mov.date) }}</td>
+              <td>
+                <span class="badge" [ngClass]="'badge-' + mov.type.toLowerCase()">
+                  {{ getMovementTypeLabel(mov.type) }}
+                </span>
+              </td>
+              <td>{{ mov.description || (mov.saleId ? 'Venta #' + mov.saleId : '—') }}</td>
+              <td class="mov-amount" [ngClass]="mov.type === 'EXPENSE' || mov.type === 'WITHDRAWAL' ? 'negative' : 'positive'">
+                {{ getMovementSign(mov.type) }}{{ formatPrice(mov.amount) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noMovements>
+        <p class="empty-text">No hay movimientos registrados aún.</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- ============ CAJA CERRADA - DESCARGAR PDF ============ -->
+  <div *ngIf="!loading && !cashRegister && closedCashRegisterData" class="caja-cerrada-report">
+    <div class="close-report-card">
+      <div class="close-report-icon">
+        <i class="now-ui-icons ui-1_check" style="font-size: 48px; color: #28a745;"></i>
+      </div>
+      <h2>Caja Cerrada Exitosamente</h2>
+      <div class="close-report-summary">
+        <div class="close-row"><span>Total Ventas:</span> <strong>{{ formatPrice(closedCashRegisterData.totalSales) }} ({{ closedCashRegisterData.saleCount }} ventas)</strong></div>
+        <div class="close-row"><span>Monto Esperado:</span> <strong>{{ formatPrice(closedCashRegisterData.expectedAmount) }}</strong></div>
+        <div class="close-row"><span>Monto Contado:</span> <strong>{{ formatPrice(closedCashRegisterData.closingAmount) }}</strong></div>
+        <div class="close-row"><span>Diferencia:</span>
+          <strong [ngClass]="{
+            'diff-zero': closedCashRegisterData.difference === 0,
+            'diff-positive': closedCashRegisterData.difference > 0,
+            'diff-negative': closedCashRegisterData.difference < 0
+          }">{{ formatPrice(closedCashRegisterData.difference) }}</strong>
+        </div>
+      </div>
+      <div class="close-report-actions">
+        <button class="btn btn-primary btn-lg" (click)="downloadCloseReport()" [disabled]="downloadingPdf">
+          <i class="now-ui-icons arrows-1_cloud-download-93"></i>
+          {{ downloadingPdf ? 'Generando PDF...' : 'Descargar Reporte PDF' }}
+        </button>
+        <button class="btn btn-secondary" (click)="dismissCloseReport()">
+          Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SIN CAJA ABIERTA ============ -->
+  <div *ngIf="!loading && !cashRegister && !closedCashRegisterData" class="caja-cerrada">
+    <div class="open-card">
+      <div class="open-icon">
+        <i class="now-ui-icons business_money-coins"></i>
+      </div>
+      <h2>No hay caja abierta</h2>
+      <p>Ingresa el monto inicial para iniciar la jornada</p>
+      <div class="open-form">
+        <label for="openingAmount">Monto Inicial</label>
+        <input
+          id="openingAmount"
+          type="number"
+          class="form-control"
+          [(ngModel)]="openingAmount"
+          placeholder="Ej: 100000"
+          min="0"
+          step="100"
+        />
+        <button class="btn btn-primary" (click)="openCashRegister()" [disabled]="submitting">
+          {{ submitting ? 'Abriendo...' : 'Abrir Caja' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: CERRAR CAJA ============ -->
+  <div class="modal-overlay" *ngIf="showCloseModal" (click)="cancelClose()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Cerrar Caja</h3>
+        <button class="btn-close" (click)="cancelClose()">&times;</button>
+      </div>
+      <div class="modal-body" *ngIf="cashRegister">
+        <div class="close-summary">
+          <div class="close-row"><span>Ventas:</span> <strong>{{ formatPrice(cashRegister.totalSales) }} ({{ cashRegister.saleCount }})</strong></div>
+          <div class="close-row"><span>Ingresos:</span> <strong>{{ formatPrice(cashRegister.totalIncomes) }}</strong></div>
+          <div class="close-row"><span>Gastos:</span> <strong class="negative">-{{ formatPrice(cashRegister.totalExpenses) }}</strong></div>
+          <div class="close-row"><span>Retiros:</span> <strong class="negative">-{{ formatPrice(cashRegister.totalWithdrawals) }}</strong></div>
+          <hr />
+          <div class="close-row expected"><span>Monto esperado en caja:</span> <strong>{{ formatPrice(cashRegister.expectedAmount) }}</strong></div>
+        </div>
+
+        <div class="form-group">
+          <label for="closingAmount">Monto Contado</label>
+          <input
+            id="closingAmount"
+            type="number"
+            class="form-control"
+            [(ngModel)]="closingAmount"
+            placeholder="Monto real en caja"
+            min="0"
+            step="100"
+          />
+        </div>
+
+        <div class="close-difference" *ngIf="closingAmount !== null && closingAmount >= 0">
+          <span>Diferencia:</span>
+          <strong [ngClass]="{
+            'diff-zero': getCloseDifference() === 0,
+            'diff-positive': getCloseDifference() > 0,
+            'diff-negative': getCloseDifference() < 0
+          }">
+            {{ formatPrice(getCloseDifference()) }}
+            <span *ngIf="getCloseDifference() === 0"> <i class="fa fa-check-circle"></i> Cuadra</span>
+            <span *ngIf="getCloseDifference() > 0"> <i class="fa fa-exclamation-triangle"></i> Sobrante</span>
+            <span *ngIf="getCloseDifference() < 0"> <i class="fa fa-times-circle"></i> Faltante</span>
+          </strong>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelClose()">Cancelar</button>
+        <button class="btn btn-danger" (click)="closeCashRegister()" [disabled]="submitting">
+          {{ submitting ? 'Cerrando...' : 'Cerrar Caja' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: NUEVO MOVIMIENTO ============ -->
+  <div class="modal-overlay" *ngIf="showMovementModal" (click)="cancelMovement()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Nuevo Movimiento</h3>
+        <button class="btn-close" (click)="cancelMovement()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Tipo de Movimiento</label>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="movType" value="INCOME" [(ngModel)]="movementType" />
+              <span class="radio-label income-label">Ingreso</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="movType" value="EXPENSE" [(ngModel)]="movementType" />
+              <span class="radio-label expense-label">Gasto</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="movType" value="WITHDRAWAL" [(ngModel)]="movementType" />
+              <span class="radio-label withdrawal-label">Retiro</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="movAmount">Monto</label>
+          <input
+            id="movAmount"
+            type="number"
+            class="form-control"
+            [(ngModel)]="movementAmount"
+            placeholder="Ej: 5000"
+            min="1"
+            step="100"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="movDesc">Descripción (opcional)</label>
+          <input
+            id="movDesc"
+            type="text"
+            class="form-control"
+            [(ngModel)]="movementDescription"
+            placeholder="Ej: Compra de bolsas"
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelMovement()">Cancelar</button>
+        <button class="btn btn-primary" (click)="saveMovement()" [disabled]="submitting">
+          {{ submitting ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

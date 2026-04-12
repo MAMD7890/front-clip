@@ -1,0 +1,133 @@
+<div class="history-container">
+  <div class="section-header">
+    <h1><i class="now-ui-icons files_paper section-icon"></i> Historial de Cajas</h1>
+    <p>Consulta el historial de aperturas y cierres de caja</p>
+  </div>
+
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">{{ message }}</div>
+
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando historial...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <div class="table-wrapper" *ngIf="cajas.length > 0; else noData">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Estado</th>
+            <th>Fecha Apertura</th>
+            <th>Fecha Cierre</th>
+            <th>Apertura</th>
+            <th>Cierre</th>
+            <th>Ventas</th>
+            <th>Diferencia</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let caja of cajas">
+            <tr>
+              <td>#{{ caja.id }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="caja.status === 'OPEN' ? 'status-open' : 'status-closed'">
+                  {{ getStatusLabel(caja.status) }}
+                </span>
+              </td>
+              <td>{{ formatDate(caja.openingDate) }}</td>
+              <td>{{ formatDate(caja.closingDate) }}</td>
+              <td>{{ formatPrice(caja.openingAmount) }}</td>
+              <td>{{ formatPrice(caja.closingAmount) }}</td>
+              <td>{{ formatPrice(caja.totalSales) }} <small>({{ caja.saleCount }})</small></td>
+              <td [ngClass]="{
+                'diff-zero': caja.difference === 0,
+                'diff-positive': caja.difference !== null && caja.difference > 0,
+                'diff-negative': caja.difference !== null && caja.difference < 0
+              }">
+                <span *ngIf="caja.difference !== null">{{ formatPrice(caja.difference) }} <i [ngClass]="getDifferenceIconClass(caja.difference)"></i></span>
+                <span *ngIf="caja.difference === null">—</span>
+              </td>
+              <td>
+                <button class="btn-link" (click)="toggleDetail(caja.id)">
+                  {{ isExpanded(caja.id) ? 'Ocultar' : 'Ver detalle' }}
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="isExpanded(caja.id)">
+              <td colspan="9" class="details-cell">
+                <div class="details-box">
+                  <div class="detail-summary">
+                    <div class="summary-item">
+                      <span class="summary-label">Base</span>
+                      <span class="summary-value">{{ formatPrice(caja.openingAmount) }}</span>
+                    </div>
+                    <div class="summary-item highlight">
+                      <span class="summary-label">Ventas</span>
+                      <span class="summary-value">{{ formatPrice(caja.totalSales) }}</span>
+                      <span class="summary-sub">{{ caja.saleCount }} venta(s)</span>
+                    </div>
+                    <div class="summary-item">
+                      <span class="summary-label">Ingresos</span>
+                      <span class="summary-value">{{ formatPrice(caja.totalIncomes) }}</span>
+                    </div>
+                    <div class="summary-item expense">
+                      <span class="summary-label">Gastos</span>
+                      <span class="summary-value">-{{ formatPrice(caja.totalExpenses) }}</span>
+                    </div>
+                    <div class="summary-item expense">
+                      <span class="summary-label">Retiros</span>
+                      <span class="summary-value">-{{ formatPrice(caja.totalWithdrawals) }}</span>
+                    </div>
+                    <div class="summary-item primary">
+                      <span class="summary-label">Esperado</span>
+                      <span class="summary-value">{{ formatPrice(caja.expectedAmount) }}</span>
+                    </div>
+                  </div>
+
+                  <h4>Movimientos</h4>
+                  <table class="detail-table" *ngIf="caja.movements?.length; else noMovements">
+                    <thead>
+                      <tr>
+                        <th>Hora</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Monto</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let mov of caja.movements">
+                        <td>{{ formatTime(mov.date) }}</td>
+                        <td>
+                          <span class="badge" [ngClass]="'badge-' + mov.type.toLowerCase()">
+                            {{ getMovementTypeLabel(mov.type) }}
+                          </span>
+                        </td>
+                        <td>{{ mov.description || (mov.saleId ? 'Venta #' + mov.saleId : '—') }}</td>
+                        <td [ngClass]="mov.type === 'EXPENSE' || mov.type === 'WITHDRAWAL' ? 'negative' : 'positive'">
+                          {{ getMovementSign(mov.type) }}{{ formatPrice(mov.amount) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <ng-template #noMovements>
+                    <p class="empty-text">No hay movimientos registrados.</p>
+                  </ng-template>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noData>
+      <div class="empty-state">
+        <i class="now-ui-icons files_box empty-icon"></i>
+        <h3>No hay registros de caja</h3>
+        <p>Aún no se ha abierto ninguna caja</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

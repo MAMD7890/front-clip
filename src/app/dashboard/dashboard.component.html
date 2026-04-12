@@ -1,0 +1,238 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1><i class="now-ui-icons business_chart-bar-32 section-icon"></i> Panel de Control</h1>
+      <p>Resumen general del sistema — Papelería Folder Clip</p>
+    </div>
+    <button class="btn-refresh" (click)="loadStats()">
+      <i class="now-ui-icons loader_refresh"></i> Actualizar
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando estadísticas...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="error-container">
+    <i class="now-ui-icons ui-1_bell-53"></i>
+    <p>No se pudieron cargar las estadísticas. Verifica que el servidor esté activo.</p>
+    <button class="btn-refresh" (click)="loadStats()">Reintentar</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="stats && !loading">
+
+    <!-- KPI Cards Row 1: Ventas -->
+    <div class="section-title">
+      <i class="now-ui-icons shopping_cart-simple"></i> Ventas
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-icon"><i class="now-ui-icons shopping_bag-16"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ stats.salesToday }}</span>
+          <span class="kpi-label">Ventas Hoy</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-icon"><i class="now-ui-icons business_money-coins"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ formatCurrency(stats.revenueToday) }}</span>
+          <span class="kpi-label">Ingresos Hoy</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-icon"><i class="now-ui-icons ui-1_calendar-60"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ stats.salesWeek }}</span>
+          <span class="kpi-label">Ventas Semana</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-yellow">
+        <div class="kpi-icon"><i class="now-ui-icons business_chart-bar-32"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ formatCurrency(stats.revenueMonth) }}</span>
+          <span class="kpi-label">Ingresos Mes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Cards Row 2: Créditos -->
+    <div class="section-title">
+      <i class="now-ui-icons business_money-coins"></i> Créditos
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-orange">
+        <div class="kpi-icon"><i class="now-ui-icons files_paper"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ stats.activeCredits }}</span>
+          <span class="kpi-label">Créditos Activos</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-red">
+        <div class="kpi-icon"><i class="now-ui-icons ui-1_bell-53"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ stats.overdueCredits }}</span>
+          <span class="kpi-label">Créditos Vencidos</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-orange-light">
+        <div class="kpi-icon"><i class="now-ui-icons business_money-coins"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ formatCurrency(stats.totalPendingDebt) }}</span>
+          <span class="kpi-label">Deuda Pendiente</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-teal">
+        <div class="kpi-icon"><i class="now-ui-icons ui-2_time-alarm"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ stats.creditsDueSoon }}</span>
+          <span class="kpi-label">Vencen Pronto</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Cards Row 3: Inventario y Clientes -->
+    <div class="section-title">
+      <i class="now-ui-icons shopping_box"></i> Inventario y Clientes
+    </div>
+    <div class="kpi-grid kpi-grid-3">
+      <div class="kpi-card kpi-indigo">
+        <div class="kpi-icon"><i class="now-ui-icons shopping_box"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ stats.totalProducts }}</span>
+          <span class="kpi-label">Total Productos</span>
+        </div>
+      </div>
+      <div class="kpi-card" [ngClass]="stats.lowStockProducts > 0 ? 'kpi-red' : 'kpi-green'">
+        <div class="kpi-icon"><i class="now-ui-icons ui-1_bell-53"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ stats.lowStockProducts }}</span>
+          <span class="kpi-label">Stock Bajo</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-blue-dark">
+        <div class="kpi-icon"><i class="now-ui-icons users_circle-08"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ stats.totalCustomers }}</span>
+          <span class="kpi-label">Clientes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tables Section -->
+    <div class="tables-grid">
+
+      <!-- Top Deudores -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3><i class="now-ui-icons users_circle-08"></i> Clientes que Deben</h3>
+        </div>
+        <div class="table-body" *ngIf="stats.topDebtors && stats.topDebtors.length > 0">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th class="text-center">Créditos</th>
+                <th class="text-center">Vencidos</th>
+                <th class="text-right">Deuda</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let debtor of stats.topDebtors">
+                <td class="customer-name">{{ debtor.customerName }}</td>
+                <td class="text-center">
+                  <span class="badge badge-info">{{ debtor.activeCreditsCount }}</span>
+                </td>
+                <td class="text-center">
+                  <span class="badge" [ngClass]="debtor.overdueCreditsCount > 0 ? 'badge-danger' : 'badge-success'">
+                    {{ debtor.overdueCreditsCount }}
+                  </span>
+                </td>
+                <td class="text-right debt-amount">{{ formatCurrency(debtor.totalDebt) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-empty" *ngIf="!stats.topDebtors || stats.topDebtors.length === 0">
+          <i class="now-ui-icons ui-2_like"></i>
+          <p>No hay clientes con deudas pendientes</p>
+        </div>
+      </div>
+
+      <!-- Ventas Recientes -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3><i class="now-ui-icons shopping_cart-simple"></i> Ventas de Hoy</h3>
+        </div>
+        <div class="table-body" *ngIf="stats.recentSales && stats.recentSales.length > 0">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th class="text-center">Items</th>
+                <th class="text-right">Total</th>
+                <th>Hora</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sale of stats.recentSales">
+                <td class="sale-id">{{ sale.saleId }}</td>
+                <td>{{ sale.customerName }}</td>
+                <td class="text-center">{{ sale.itemCount }}</td>
+                <td class="text-right sale-total">{{ formatCurrency(sale.totalValue) }}</td>
+                <td class="sale-date">{{ sale.date }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-empty" *ngIf="!stats.recentSales || stats.recentSales.length === 0">
+          <i class="now-ui-icons shopping_bag-16"></i>
+          <p>No hay ventas registradas hoy</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Low Stock Alert -->
+    <div class="table-card low-stock-card" *ngIf="stats.lowStockList && stats.lowStockList.length > 0">
+      <div class="table-header table-header-warning">
+        <h3><i class="now-ui-icons ui-1_bell-53"></i> Productos con Stock Bajo</h3>
+      </div>
+      <div class="table-body">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th class="text-center">Stock Actual</th>
+              <th class="text-center">Stock Mínimo</th>
+              <th class="text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of stats.lowStockList">
+              <td class="product-code">{{ item.productCode }}</td>
+              <td>{{ item.productName }}</td>
+              <td class="text-center stock-value" [ngClass]="item.stockActual === 0 ? 'stock-zero' : 'stock-low'">
+                {{ item.stockActual }}
+              </td>
+              <td class="text-center">{{ item.stockMin }}</td>
+              <td class="text-center">
+                <span class="badge" [ngClass]="item.stockActual === 0 ? 'badge-danger' : 'badge-warning'">
+                  {{ item.stockActual === 0 ? 'Agotado' : 'Bajo' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

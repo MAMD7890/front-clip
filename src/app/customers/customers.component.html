@@ -1,0 +1,144 @@
+<div class="customers-container">
+  <!-- Header -->
+  <div class="customers-header">
+    <div class="header-content">
+      <h1><i class="now-ui-icons users_single-02 section-icon"></i> Gestión de Clientes</h1>
+      <p>Administra tus clientes para ventas y créditos</p>
+    </div>
+    <button class="btn-create" (click)="showNewForm()">
+      <i class="now-ui-icons ui-1_simple-add"></i>
+      <span>Nuevo Cliente</span>
+    </button>
+  </div>
+
+  <!-- Message -->
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">
+    {{ message }}
+  </div>
+
+  <!-- Búsqueda + contador -->
+  <div class="toolbar">
+    <div class="search-bar">
+      <i class="now-ui-icons ui-1_zoom-bold search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar por nombre, NIT o teléfono..."
+        [(ngModel)]="searchQuery"
+        (input)="searchCustomers()"
+      />
+    </div>
+    <div class="toolbar-info">
+      <span class="item-count">{{ filteredCustomers.length }} cliente{{ filteredCustomers.length !== 1 ? 's' : '' }}</span>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- Tabla de Clientes -->
+  <div class="table-container" *ngIf="!loading">
+    <table class="data-table" *ngIf="filteredCustomers.length > 0; else noCustomers">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Razón Social</th>
+          <th>NIT</th>
+          <th>Dirección</th>
+          <th>Teléfono</th>
+          <th class="th-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customer of filteredCustomers; let i = index">
+          <td data-label="#">{{ i + 1 }}</td>
+          <td data-label="Razón Social" class="name-cell">{{ customer.razonSocial }}</td>
+          <td data-label="NIT"><span class="nit-badge">{{ customer.nit }}</span></td>
+          <td data-label="Dirección">{{ customer.direccion || '—' }}</td>
+          <td data-label="Teléfono">{{ customer.telefono || '—' }}</td>
+          <td data-label="Acciones" class="actions-cell">
+            <button class="btn-action btn-edit" (click)="editCustomer(customer)" title="Editar">
+              <i class="now-ui-icons design-2_ruler-pencil"></i>
+            </button>
+            <button class="btn-action btn-delete" (click)="deleteCustomer(customer.id!, customer.razonSocial)" title="Eliminar">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noCustomers>
+      <div class="no-items">
+        <div class="empty-state">
+          <i class="now-ui-icons users_single-02 empty-icon"></i>
+          <h3>No hay clientes</h3>
+          <p *ngIf="searchQuery">No se encontraron clientes con "<strong>{{ searchQuery }}</strong>"</p>
+          <p *ngIf="!searchQuery">Comienza agregando tu primer cliente</p>
+          <button class="btn btn-primary" (click)="showNewForm()">
+            <i class="now-ui-icons ui-1_simple-add"></i>
+            <span>Crear Primer Cliente</span>
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" *ngIf="showForm" (click)="onOverlayClick($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingId ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+      <button class="modal-close" (click)="cancelForm()">
+        <i class="now-ui-icons ui-1_simple-remove"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="customerForm" (ngSubmit)="submitForm()">
+        <!-- Razón Social y NIT -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="razonSocial">Razón Social *</label>
+            <input id="razonSocial" formControlName="razonSocial" type="text" class="form-control"
+              placeholder="Ej: Empresa S.A.S" [class.is-invalid]="errors['razonSocial']" />
+            <div *ngIf="errors['razonSocial']" class="error-message">{{ errors['razonSocial'] }}</div>
+          </div>
+          <div class="form-group">
+            <label for="nit">NIT *</label>
+            <input id="nit" formControlName="nit" type="text" class="form-control"
+              placeholder="Ej: 900123456-7" [class.is-invalid]="errors['nit']" />
+            <div *ngIf="errors['nit']" class="error-message">{{ errors['nit'] }}</div>
+          </div>
+        </div>
+
+        <!-- Dirección y Teléfono -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="direccion">Dirección</label>
+            <input id="direccion" formControlName="direccion" type="text" class="form-control"
+              placeholder="Ej: Calle 10 #20-30" />
+          </div>
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input id="telefono" formControlName="telefono" type="text" class="form-control"
+              placeholder="Ej: 3001234567" />
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i class="now-ui-icons" [ngClass]="loading ? 'loader_refresh spin-icon' : (editingId ? 'design-2_ruler-pencil' : 'ui-1_simple-add')"></i>
+            <span>{{ loading ? 'Guardando...' : (editingId ? 'Actualizar' : 'Crear Cliente') }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

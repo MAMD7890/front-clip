@@ -1,0 +1,136 @@
+<div class="sales-container">
+  <div class="section-header">
+    <h1><i class="now-ui-icons shopping_cart-simple section-icon"></i> Registrar Venta</h1>
+    <p>Registra una venta con cliente opcional, productos y metodos de pago</p>
+  </div>
+
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">{{ message }}</div>
+
+  <div class="loading-spinner" *ngIf="loadingCatalogs">
+    <div class="spinner"></div>
+    <p>Cargando catalogos...</p>
+  </div>
+
+  <form [formGroup]="saleForm" (ngSubmit)="submitSale()" class="card" *ngIf="!loadingCatalogs">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="customerId">Cliente {{ isCreditSelected() ? '*' : '(opcional)' }}</label>
+        <select id="customerId" class="form-control" formControlName="customerId"
+          [ngClass]="{'invalid-field': isCreditSelected() && saleForm.get('customerId')?.touched && !saleForm.get('customerId')?.value}">
+          <option [ngValue]="null">Venta sin cliente</option>
+          <option *ngFor="let customer of customers" [ngValue]="customer.id">
+            {{ customer.razonSocial }} - {{ customer.nit }}
+          </option>
+        </select>
+        <small class="error-message" *ngIf="isCreditSelected() && saleForm.get('customerId')?.touched && !saleForm.get('customerId')?.value">
+          El cliente es obligatorio para ventas a crédito
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="valueReceived">Valor Recibido (opcional)</label>
+        <input id="valueReceived" type="number" class="form-control" formControlName="valueReceived" min="0" step="0.01" />
+      </div>
+    </div>
+
+    <div class="items-header">
+      <h3>Items de Venta</h3>
+      <button type="button" class="btn btn-secondary" (click)="addItem()">
+        <i class="now-ui-icons ui-1_simple-add"></i>
+        Agregar Item
+      </button>
+    </div>
+
+    <div class="items-table-wrapper">
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Total Linea</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody formArrayName="items">
+          <tr *ngFor="let row of items.controls; let i = index" [formGroupName]="i">
+            <td>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="productSearch"
+                placeholder="Busca por nombre de producto"
+                [attr.list]="'products-list-' + i"
+                (input)="onProductSearchChange(i)"
+                (change)="onProductSearchChange(i)"
+              />
+              <datalist [attr.id]="'products-list-' + i">
+                <option *ngFor="let product of products" [value]="getProductDisplayName(product)"></option>
+              </datalist>
+              <small class="error-message" *ngIf="(row.get('productSearch')?.touched || row.get('productId')?.touched) && (row.get('productSearch')?.invalid || row.get('productId')?.invalid)">
+                Selecciona un producto valido desde el buscador
+              </small>
+            </td>
+            <td>
+              <input type="number" class="form-control" formControlName="quantity" min="1" step="1" />
+            </td>
+            <td>
+              <input type="number" class="form-control" formControlName="unitPrice" min="0" step="0.01" />
+            </td>
+            <td class="line-total">{{ formatPrice(getLineTotal(i)) }}</td>
+            <td>
+              <button type="button" class="btn-icon" (click)="removeItem(i)" [disabled]="items.length === 1" title="Eliminar item">
+                <i class="now-ui-icons ui-1_simple-remove"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="payments-section">
+      <h3>Metodos de Pago *</h3>
+      <div class="payment-grid">
+        <label class="check-item" *ngFor="let pm of paymentMethods">
+          <input
+            type="checkbox"
+            [checked]="isPaymentMethodSelected(pm.name)"
+            (change)="togglePaymentMethod(pm.name, $event.target.checked)"
+          />
+          <span>{{ pm.name }}</span>
+        </label>
+      </div>
+      <small class="error-message" *ngIf="saleForm.get('paymentMethodNames')?.touched && saleForm.get('paymentMethodNames')?.invalid">
+        Selecciona al menos un metodo de pago
+      </small>
+      <div class="credit-warning" *ngIf="isCreditSelected()">
+        <i class="now-ui-icons travel_info"></i>
+        <span>Venta a crédito: el cliente es obligatorio y el plazo máximo es de 25 días.</span>
+      </div>
+    </div>
+
+    <div class="sale-total">
+      <div class="total-row">
+        <span>Total de Venta:</span>
+        <strong>{{ formatPrice(getSaleTotal()) }}</strong>
+      </div>
+      <div class="total-row" *ngIf="saleForm.get('valueReceived')?.value">
+        <span>Valor Recibido:</span>
+        <strong>{{ formatPrice(saleForm.get('valueReceived')?.value) }}</strong>
+      </div>
+      <div class="total-row change-row" *ngIf="saleForm.get('valueReceived')?.value && getCalculatedChange() !== 0">
+        <span>Cambio:</span>
+        <strong [ngClass]="getCalculatedChange() < 0 ? 'negative' : 'positive'">
+          {{ formatPrice(getCalculatedChange()) }}
+        </strong>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" (click)="resetForm()">Limpiar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="loadingSubmit">
+        {{ loadingSubmit ? 'Registrando...' : 'Registrar Venta' }}
+      </button>
+    </div>
+  </form>
+</div>

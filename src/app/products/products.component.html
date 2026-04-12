@@ -1,0 +1,172 @@
+<div class="products-container">
+  <!-- Header -->
+  <div class="products-header">
+    <div class="header-content">
+      <h1><i class="now-ui-icons shopping_box section-icon"></i> Inventario de Productos</h1>
+      <p>Gestiona tu catálogo de productos</p>
+    </div>
+    <button class="btn-create" (click)="showNewForm()">
+      <i class="now-ui-icons ui-1_simple-add"></i>
+      <span>Crear Producto</span>
+    </button>
+  </div>
+
+  <!-- Message -->
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">
+    {{ message }}
+  </div>
+
+  <!-- Búsqueda + contador -->
+  <div class="toolbar">
+    <div class="search-bar">
+      <i class="now-ui-icons ui-1_zoom-bold search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar por nombre o código..."
+        [(ngModel)]="searchQuery"
+        (input)="searchProducts()"
+      />
+    </div>
+    <div class="toolbar-info">
+      <span class="product-count">{{ filteredProducts.length }} producto{{ filteredProducts.length !== 1 ? 's' : '' }}</span>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- Tabla de Productos (Desktop) -->
+  <div class="products-table-container" *ngIf="!loading">
+    <table class="products-table" *ngIf="filteredProducts.length > 0; else noProducts">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Código</th>
+          <th>Costo</th>
+          <th>Precio Final</th>
+          <th>Ganancia</th>
+          <th>Stock Actual</th>
+          <th>Stock Mín.</th>
+          <th class="th-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of filteredProducts; let i = index">
+          <td data-label="#">{{ i + 1 }}</td>
+          <td data-label="Nombre" class="name-cell">{{ product.name }}</td>
+          <td data-label="Código"><span class="code-badge">{{ product.code }}</span></td>
+          <td data-label="Costo" class="price-cell">{{ formatPrice(product.cost) }}</td>
+          <td data-label="Precio Final" class="price-cell price-final">{{ formatPrice(product.finalPrice) }}</td>
+          <td data-label="Ganancia" class="price-cell profit-cell">{{ formatPrice(product.profit) }}</td>
+          <td data-label="Stock Actual">
+            <span class="stock-badge" [ngClass]="{ 'low-stock': product.stockActual < product.stockMin }">
+              {{ product.stockActual }}
+            </span>
+          </td>
+          <td data-label="Stock Mín.">{{ product.stockMin }}</td>
+          <td data-label="Acciones" class="actions-cell">
+            <button class="btn-action btn-edit" (click)="editProduct(product)" title="Editar">
+              <i class="now-ui-icons design-2_ruler-pencil"></i>
+            </button>
+            <button class="btn-action btn-delete" (click)="deleteProduct(product.id, product.name)" title="Eliminar">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noProducts>
+      <div class="no-products">
+        <div class="empty-state">
+          <i class="now-ui-icons files_box empty-icon"></i>
+          <h3>No hay productos</h3>
+          <p *ngIf="searchQuery">No se encontraron productos con "<strong>{{ searchQuery }}</strong>"</p>
+          <p *ngIf="!searchQuery">Comienza agregando tu primer producto</p>
+          <button class="btn btn-primary" (click)="showNewForm()">
+            <i class="now-ui-icons ui-1_simple-add"></i>
+            <span>Crear Primer Producto</span>
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" *ngIf="showForm" (click)="onOverlayClick($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingId ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
+      <button class="modal-close" (click)="cancelForm()">
+        <i class="now-ui-icons ui-1_simple-remove"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="productForm" (ngSubmit)="submitForm()">
+        <!-- Nombre y Código -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Nombre del Producto *</label>
+            <input id="name" formControlName="name" type="text" class="form-control"
+              placeholder="Ej: Laptop Dell" [class.is-invalid]="errors['name']" />
+            <div *ngIf="errors['name']" class="error-message">{{ errors['name'] }}</div>
+          </div>
+          <div class="form-group">
+            <label for="code">Código *</label>
+            <input id="code" formControlName="code" type="text" class="form-control"
+              placeholder="Ej: DELL-001" [class.is-invalid]="errors['code']" />
+            <div *ngIf="errors['code']" class="error-message">{{ errors['code'] }}</div>
+          </div>
+        </div>
+
+        <!-- Costo y Precio Final -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cost">Costo *</label>
+            <input id="cost" formControlName="cost" type="number" step="0.01" class="form-control"
+              placeholder="10000" (input)="calculateFinalPrice()" [class.is-invalid]="errors['cost']" />
+            <div *ngIf="errors['cost']" class="error-message">{{ errors['cost'] }}</div>
+          </div>
+          <div class="form-group">
+            <label for="finalPrice">Precio Final *</label>
+            <input id="finalPrice" formControlName="finalPrice" type="number" step="0.01"
+              class="form-control" placeholder="28571.43" [class.is-invalid]="errors['finalPrice']" />
+            <div *ngIf="errors['finalPrice']" class="error-message">{{ errors['finalPrice'] }}</div>
+          </div>
+        </div>
+
+        <!-- Stock -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="stockActual">Stock Actual *</label>
+            <input id="stockActual" formControlName="stockActual" type="number" class="form-control"
+              placeholder="50" [class.is-invalid]="errors['stockActual']" />
+            <div *ngIf="errors['stockActual']" class="error-message">{{ errors['stockActual'] }}</div>
+          </div>
+          <div class="form-group">
+            <label for="stockMin">Stock Mínimo *</label>
+            <input id="stockMin" formControlName="stockMin" type="number" class="form-control"
+              placeholder="10" [class.is-invalid]="errors['stockMin']" />
+            <div *ngIf="errors['stockMin']" class="error-message">{{ errors['stockMin'] }}</div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i class="now-ui-icons" [ngClass]="loading ? 'loader_refresh spin-icon' : (editingId ? 'design-2_ruler-pencil' : 'ui-1_simple-add')"></i>
+            <span>{{ loading ? 'Guardando...' : (editingId ? 'Actualizar' : 'Crear Producto') }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

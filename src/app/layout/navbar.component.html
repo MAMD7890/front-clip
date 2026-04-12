@@ -1,0 +1,34 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <button class="menu-toggle" (click)="onToggleSidebar()" aria-label="Abrir menu lateral">
+      <i class="now-ui-icons text_align-left"></i>
+    </button>
+    <img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*KRhhag-giOP8mLZ3EiHQ9Q.png" alt="Logo" class="navbar-logo">
+  </div>
+
+  <div class="navbar-right">
+    <div class="user-section">
+      <span class="greeting">Hola, {{ username }}</span>
+      <button class="user-btn" (click)="toggleUserMenu()" aria-label="Abrir menu de usuario">
+        <i class="now-ui-icons users_single-02"></i>
+      </button>
+
+      <div class="user-menu" *ngIf="showUserMenu">
+        <button class="user-menu-item" (click)="openChangePassword()">
+          <i class="now-ui-icons objects_key-25"></i>
+          <span>Cambiar contrasena</span>
+        </button>
+        <button class="user-menu-item logout" (click)="logout()">
+          <i class="now-ui-icons arrows-1_share-66"></i>
+          <span>Salir</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Modal de Cambiar Contraseña -->
+<app-change-password 
+  *ngIf="showChangePasswordModal"
+  (close)="closeChangePassword()">
+</app-change-password>

@@ -1,0 +1,76 @@
+<div class="login-container">
+  <div class="login-wrapper">
+    <div class="login-card">
+      <!-- Logo -->
+      <div class="logo-container">
+        <img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*KRhhag-giOP8mLZ3EiHQ9Q.png" alt="Folder Clip" class="logo">
+      </div>
+
+      <!-- Título -->
+      <h1 class="title">{{ isRegister ? 'Crear Cuenta' : 'Bienvenido a Folder Clip' }}</h1>
+      <p class="subtitle">{{ isRegister ? 'Regístrate para comenzar' : 'Tu espacio creativo' }}</p>
+
+      <!-- Form -->
+      <form [formGroup]="authForm" (ngSubmit)="submit()">
+        <!-- Username -->
+        <div class="form-group">
+          <label for="username">Usuario</label>
+          <input
+            id="username"
+            formControlName="username"
+            type="text"
+            class="form-control"
+            placeholder="Nombre de usuario"
+            [class.is-invalid]="errors['username']"
+          />
+          <div *ngIf="errors['username']" class="error-message">
+            {{ errors['username'] }}
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            formControlName="password"
+            type="password"
+            class="form-control"
+            placeholder="Contraseña"
+            [class.is-invalid]="errors['password']"
+          />
+          <div *ngIf="errors['password']" class="error-message">
+            {{ errors['password'] }}
+          </div>
+        </div>
+
+        <!-- General Error -->
+        <div *ngIf="error" class="alert alert-danger">
+          {{ error }}
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="loading"
+        >
+          {{ loading ? 'Cargando...' : (isRegister ? 'Registrarse' : 'Iniciar sesión') }}
+        </button>
+      </form>
+
+      <!-- Toggle -->
+      <div class="toggle-mode">
+        <p>
+          {{ isRegister ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?' }}
+          <a href="javascript:void(0)" (click)="toggleMode()" class="toggle-link">
+            {{ isRegister ? 'Inicia sesión' : 'Regístrate' }}
+          </a>
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <p class="footer-text">© 2024 Folder Clip. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,321 @@
+<div class="credits-container">
+  <!-- HEADER -->
+  <div class="credits-header">
+    <div class="header-content">
+      <h1><i class="now-ui-icons business_money-coins section-icon"></i> Historial de Créditos</h1>
+      <p>Control de créditos, abonos y pagos organizados por cliente</p>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <div class="summary-icon"><i class="now-ui-icons files_paper"></i></div>
+      <div class="summary-info">
+        <span class="summary-value">{{ totalCredits }}</span>
+        <span class="summary-label">Total Créditos</span>
+      </div>
+    </div>
+    <div class="summary-card card-debt">
+      <div class="summary-icon"><i class="now-ui-icons business_money-coins"></i></div>
+      <div class="summary-info">
+        <span class="summary-value">{{ formatCurrency(totalDebt) }}</span>
+        <span class="summary-label">Deuda Pendiente</span>
+      </div>
+    </div>
+    <div class="summary-card card-overdue">
+      <div class="summary-icon"><i class="now-ui-icons ui-1_bell-53"></i></div>
+      <div class="summary-info">
+        <span class="summary-value">{{ totalOverdue }}</span>
+        <span class="summary-label">Vencidos</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGE -->
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">
+    {{ message }}
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-bar">
+      <i class="now-ui-icons ui-1_zoom-bold search-icon"></i>
+      <input type="text" class="search-input" placeholder="Buscar por cliente o # venta..."
+        [(ngModel)]="searchQuery" (input)="onFilterChange()" />
+    </div>
+    <div class="toolbar-actions">
+      <select class="filter-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+        <option value="ALL">Todos los estados</option>
+        <option value="PENDING">Pendiente</option>
+        <option value="PARTIALLY_PAID">Parcialmente pagado</option>
+        <option value="PAID">Pagado</option>
+        <option value="OVERDUE">Vencido</option>
+        <option value="CANCELLED">Cancelado</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- VISTA POR CLIENTES -->
+  <div *ngIf="!loading">
+    <div *ngIf="filteredGroups.length > 0; else noCredits">
+      <div class="customer-group" *ngFor="let group of filteredGroups">
+        <!-- Cabecera Cliente -->
+        <div class="customer-header">
+          <div class="customer-info">
+            <i class="now-ui-icons users_single-02 customer-icon"></i>
+            <div>
+              <h3>{{ group.customerName }}</h3>
+              <span class="customer-stats">
+                {{ group.credits.length }} crédito{{ group.credits.length !== 1 ? 's' : '' }}
+              </span>
+            </div>
+          </div>
+          <div class="customer-totals">
+            <div class="total-item">
+              <span class="total-label">Pagado</span>
+              <span class="total-value paid">{{ formatCurrency(group.totalPaid) }}</span>
+            </div>
+            <div class="total-item">
+              <span class="total-label">Debe</span>
+              <span class="total-value debt">{{ formatCurrency(group.totalDebt) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla Créditos del Cliente -->
+        <div class="credits-table-container">
+          <table class="credits-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Venta #</th>
+                <th>Total</th>
+                <th>Pagado</th>
+                <th>Pendiente</th>
+                <th>Progreso</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Vence</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let credit of group.credits"
+                  [ngClass]="{ 'row-overdue': credit.status === 'OVERDUE', 'row-paid': credit.status === 'PAID' }">
+                <td data-label="ID">{{ credit.id }}</td>
+                <td data-label="Venta #">{{ credit.saleId }}</td>
+                <td data-label="Total" class="amount">{{ formatCurrency(credit.totalAmount) }}</td>
+                <td data-label="Pagado" class="amount paid-text">{{ formatCurrency(credit.paidAmount) }}</td>
+                <td data-label="Pendiente" class="amount debt-text">{{ formatCurrency(credit.remainingAmount) }}</td>
+                <td data-label="Progreso">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="getProgressPercent(credit)"
+                         [ngClass]="{ 'progress-complete': credit.status === 'PAID', 'progress-overdue': credit.status === 'OVERDUE' }">
+                    </div>
+                    <span class="progress-text">{{ getProgressPercent(credit) }}%</span>
+                  </div>
+                </td>
+                <td data-label="Estado">
+                  <span class="status-badge" [ngClass]="getStatusClass(credit.status)">
+                    {{ getStatusLabel(credit.status) }}
+                  </span>
+                </td>
+                <td data-label="Fecha">{{ formatDate(credit.createdDate) }}</td>
+                <td data-label="Vence">
+                  <span [ngClass]="{ 'date-overdue': credit.overdue }">{{ formatDate(credit.dueDate) }}</span>
+                  <small *ngIf="credit.daysRemaining != null && credit.status !== 'PAID' && credit.status !== 'CANCELLED'" class="days-remaining"
+                    [ngClass]="{ 'days-danger': credit.daysRemaining! <= 3, 'days-warning': credit.daysRemaining! <= 7 && credit.daysRemaining! > 3 }">
+                    <span *ngIf="credit.daysRemaining! > 0">{{ credit.daysRemaining }} días</span>
+                    <span *ngIf="credit.daysRemaining! <= 0">¡Vencido!</span>
+                  </small>
+                </td>
+                <td data-label="Acciones" class="actions-cell">
+                  <button class="btn-action btn-view" (click)="viewCreditDetail(credit)" title="Ver detalle">
+                    <i class="now-ui-icons ui-1_zoom-bold"></i>
+                  </button>
+                  <button class="btn-action btn-pay" (click)="openPaymentForm(credit.id!)" title="Registrar abono"
+                    *ngIf="credit.status !== 'PAID' && credit.status !== 'CANCELLED'">
+                    <i class="now-ui-icons business_money-coins"></i>
+                  </button>
+                  <button class="btn-action btn-cancel-credit" (click)="cancelCredit(credit)" title="Cancelar crédito"
+                    *ngIf="credit.status !== 'PAID' && credit.status !== 'CANCELLED'">
+                    <i class="now-ui-icons ui-1_simple-remove"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noCredits>
+      <div class="empty-state">
+        <i class="now-ui-icons business_money-coins empty-icon"></i>
+        <h3>No hay créditos</h3>
+        <p *ngIf="searchQuery || statusFilter !== 'ALL'">No se encontraron créditos con los filtros aplicados</p>
+        <p *ngIf="!searchQuery && statusFilter === 'ALL'">Los créditos aparecerán aquí cuando se realicen ventas a crédito</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- ===== MODAL DETALLE CRÉDITO ===== -->
+<div class="modal-overlay" *ngIf="showDetail && selectedCredit" (click)="onOverlayClick($event)">
+  <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Crédito #{{ selectedCredit.id }} — {{ selectedCredit.customerName }}</h2>
+      <button class="modal-close" (click)="closeDetail()">
+        <i class="now-ui-icons ui-1_simple-remove"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Info del crédito -->
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Venta #</span>
+          <span class="detail-value">{{ selectedCredit.saleId }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Total</span>
+          <span class="detail-value amount">{{ formatCurrency(selectedCredit.totalAmount) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Pagado</span>
+          <span class="detail-value paid-text">{{ formatCurrency(selectedCredit.paidAmount) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Pendiente</span>
+          <span class="detail-value debt-text">{{ formatCurrency(selectedCredit.remainingAmount) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Estado</span>
+          <span class="status-badge" [ngClass]="getStatusClass(selectedCredit.status)">
+            {{ getStatusLabel(selectedCredit.status) }}
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Fecha Creación</span>
+          <span class="detail-value">{{ formatDateTime(selectedCredit.createdDate) }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Vencimiento</span>
+          <span class="detail-value" [ngClass]="{ 'date-overdue': selectedCredit.overdue }">
+            {{ formatDate(selectedCredit.dueDate) }}
+          </span>
+        </div>
+        <div class="detail-item" *ngIf="selectedCredit.notes">
+          <span class="detail-label">Notas</span>
+          <span class="detail-value">{{ selectedCredit.notes }}</span>
+        </div>
+      </div>
+
+      <!-- Barra de progreso -->
+      <div class="detail-progress">
+        <div class="progress-bar progress-bar-lg">
+          <div class="progress-fill" [style.width.%]="getProgressPercent(selectedCredit)"
+               [ngClass]="{ 'progress-complete': selectedCredit.status === 'PAID', 'progress-overdue': selectedCredit.status === 'OVERDUE' }">
+          </div>
+          <span class="progress-text">{{ getProgressPercent(selectedCredit) }}% pagado</span>
+        </div>
+      </div>
+
+      <!-- Historial de Abonos -->
+      <div class="payments-section">
+        <div class="payments-header">
+          <h3><i class="now-ui-icons files_paper"></i> Historial de Abonos</h3>
+          <button class="btn btn-primary btn-sm"
+            *ngIf="selectedCredit.status !== 'PAID' && selectedCredit.status !== 'CANCELLED'"
+            (click)="openPaymentForm(selectedCredit.id!)">
+            <i class="now-ui-icons ui-1_simple-add"></i> Nuevo Abono
+          </button>
+        </div>
+
+        <div *ngIf="selectedCredit.payments && selectedCredit.payments.length > 0; else noPayments">
+          <table class="payments-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th>Método</th>
+                <th>Notas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let payment of selectedCredit.payments; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ formatDateTime(payment.paymentDate) }}</td>
+                <td class="amount paid-text">{{ formatCurrency(payment.amount) }}</td>
+                <td>{{ payment.paymentMethod }}</td>
+                <td>{{ payment.notes || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ng-template #noPayments>
+          <div class="no-payments">
+            <p>No se han registrado abonos para este crédito</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL REGISTRAR ABONO ===== -->
+<div class="modal-overlay" *ngIf="showPaymentForm" (click)="onOverlayClick($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Registrar Abono</h2>
+      <button class="modal-close" (click)="cancelPayment()">
+        <i class="now-ui-icons ui-1_simple-remove"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="amount">Monto del Abono *</label>
+            <input id="amount" formControlName="amount" type="number" step="1" min="1"
+              class="form-control" placeholder="Ej: 50000" />
+          </div>
+          <div class="form-group">
+            <label for="paymentMethod">Método de Pago *</label>
+            <select id="paymentMethod" formControlName="paymentMethod" class="form-control">
+              <option value="EFECTIVO">Efectivo</option>
+              <option value="TRANSFERENCIA">Transferencia</option>
+              <option value="NEQUI">Nequi</option>
+              <option value="DAVIPLATA">Daviplata</option>
+              <option value="TARJETA">Tarjeta</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notas (opcional)</label>
+          <input id="notes" formControlName="notes" type="text" class="form-control"
+            placeholder="Ej: Abono parcial del mes" />
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancelPayment()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="paymentForm.invalid || loading">
+            <i class="now-ui-icons" [ngClass]="loading ? 'loader_refresh spin-icon' : 'business_money-coins'"></i>
+            <span>{{ loading ? 'Registrando...' : 'Registrar Abono' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<div class="payment-methods-container">
+  <div class="section-header">
+    <div>
+      <h1><i class="now-ui-icons business_money-coins section-icon"></i> Metodos de Pago</h1>
+      <p>Administra los metodos disponibles para registrar ventas</p>
+    </div>
+    <button class="btn-create" (click)="showNewForm()">
+      <i class="now-ui-icons ui-1_simple-add"></i>
+      <span>Nuevo Metodo</span>
+    </button>
+  </div>
+
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">
+    {{ message }}
+  </div>
+
+  <div class="toolbar">
+    <div class="search-bar">
+      <i class="now-ui-icons ui-1_zoom-bold search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar metodo por nombre..."
+        [(ngModel)]="searchQuery"
+        (input)="searchPaymentMethods()"
+      />
+    </div>
+    <span class="toolbar-count">{{ filteredPaymentMethods.length }} metodo{{ filteredPaymentMethods.length !== 1 ? 's' : '' }}</span>
+  </div>
+
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading">
+    <table class="table" *ngIf="filteredPaymentMethods.length > 0; else emptyState">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th class="th-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredPaymentMethods; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td class="name-cell">{{ item.name }}</td>
+          <td class="actions-cell">
+            <button class="btn-action btn-edit" (click)="editPaymentMethod(item)" title="Editar">
+              <i class="now-ui-icons design-2_ruler-pencil"></i>
+            </button>
+            <button class="btn-action btn-delete" (click)="deletePaymentMethod(item)" title="Eliminar">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <i class="now-ui-icons business_money-coins empty-icon"></i>
+        <h3>No hay metodos de pago registrados</h3>
+        <p>Agrega al menos uno para poder registrar ventas</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showForm" (click)="onOverlayClick($event)">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingId ? 'Editar Metodo de Pago' : 'Nuevo Metodo de Pago' }}</h2>
+      <button class="modal-close" (click)="cancelForm()">
+        <i class="now-ui-icons ui-1_simple-remove"></i>
+      </button>
+    </div>
+
+    <form [formGroup]="paymentMethodForm" (ngSubmit)="submitForm()" class="modal-body">
+      <div class="form-group">
+        <label for="name">Nombre *</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-control"
+          placeholder="Ej: Efectivo"
+          [class.is-invalid]="errors['name']"
+        />
+        <div class="error-message" *ngIf="errors['name']">{{ errors['name'] }}</div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancelForm()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          {{ loading ? 'Guardando...' : (editingId ? 'Actualizar' : 'Crear Metodo') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

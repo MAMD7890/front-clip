@@ -1,0 +1,254 @@
+<div class="reports-container">
+  <!-- Header -->
+  <div class="reports-header">
+    <div class="header-content">
+      <h1><i class="now-ui-icons business_chart-bar-32 section-icon"></i> Reportes de Ganancias</h1>
+      <p>Ingresos por ventas menos costos de productos</p>
+    </div>
+    <button class="btn-refresh" (click)="loadReport()">
+      <i class="now-ui-icons loader_refresh"></i> Actualizar
+    </button>
+  </div>
+
+  <!-- Tabs de periodo -->
+  <div class="period-tabs">
+    <button [class.active]="activeTab === 'today'" (click)="setTab('today'); onTabChange()">Hoy</button>
+    <button [class.active]="activeTab === 'week'" (click)="setTab('week'); onTabChange()">Esta Semana</button>
+    <button [class.active]="activeTab === 'month'" (click)="setTab('month'); onTabChange()">Este Mes</button>
+    <button [class.active]="activeTab === 'custom'" (click)="setTab('custom')">Personalizado</button>
+  </div>
+
+  <!-- Filtro personalizado -->
+  <div class="custom-filter" *ngIf="activeTab === 'custom'">
+    <div class="filter-group">
+      <label>Desde</label>
+      <input type="date" [(ngModel)]="customStart" />
+    </div>
+    <div class="filter-group">
+      <label>Hasta</label>
+      <input type="date" [(ngModel)]="customEnd" />
+    </div>
+    <button class="btn-search" (click)="searchCustom()">
+      <i class="now-ui-icons ui-1_zoom-bold"></i> Consultar
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Calculando ganancias...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="error-container">
+    <i class="now-ui-icons ui-1_bell-53"></i>
+    <p>No se pudo cargar el reporte. Verifica que el servidor esté activo.</p>
+    <button class="btn-refresh" (click)="loadReport()">Reintentar</button>
+  </div>
+
+  <!-- Contenido -->
+  <div *ngIf="report && !loading">
+
+    <!-- Periodo label -->
+    <div class="period-label">
+      <span>{{ report.periodLabel }}</span>
+      <span class="period-dates">{{ report.startDate }} — {{ report.endDate }}</span>
+    </div>
+
+    <!-- KPI Cards principales -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-green">
+        <div class="kpi-icon"><i class="now-ui-icons business_money-coins"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ formatCurrency(report.totalRevenue) }}</span>
+          <span class="kpi-label">Ingresos Totales</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-red">
+        <div class="kpi-icon"><i class="now-ui-icons shopping_box"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ formatCurrency(report.totalCost) }}</span>
+          <span class="kpi-label">Costo de Productos</span>
+        </div>
+      </div>
+      <div class="kpi-card" [ngClass]="report.totalProfit >= 0 ? 'kpi-profit' : 'kpi-loss'">
+        <div class="kpi-icon"><i class="now-ui-icons business_chart-bar-32"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ formatCurrency(report.totalProfit) }}</span>
+          <span class="kpi-label">Ganancia Neta</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-icon"><i class="now-ui-icons business_chart-pie-36"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ report.profitMargin }}%</span>
+          <span class="kpi-label">Margen de Ganancia</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats secundarios -->
+    <div class="stats-row">
+      <div class="stat-chip">
+        <i class="now-ui-icons shopping_cart-simple"></i>
+        <span><strong>{{ report.saleCount }}</strong> ventas</span>
+      </div>
+      <div class="stat-chip">
+        <i class="now-ui-icons shopping_bag-16"></i>
+        <span><strong>{{ report.totalItemsSold }}</strong> unidades vendidas</span>
+      </div>
+    </div>
+
+    <!-- Totales por Periodo -->
+    <div class="table-card" *ngIf="!loadingTotals">
+      <div class="table-header">
+        <h3><i class="now-ui-icons business_chart-bar-32"></i> Resumen de Ingresos por Periodo</h3>
+      </div>
+      <div class="period-totals-grid">
+        <div class="period-total-card period-today">
+          <div class="period-total-icon"><i class="now-ui-icons ui-1_calendar-60"></i></div>
+          <div class="period-total-info">
+            <span class="period-total-value">{{ formatCurrency(totalToday) }}</span>
+            <span class="period-total-label">Hoy</span>
+          </div>
+        </div>
+        <div class="period-total-card period-week">
+          <div class="period-total-icon"><i class="now-ui-icons ui-1_calendar-60"></i></div>
+          <div class="period-total-info">
+            <span class="period-total-value">{{ formatCurrency(totalWeek) }}</span>
+            <span class="period-total-label">Esta Semana</span>
+          </div>
+        </div>
+        <div class="period-total-card period-month">
+          <div class="period-total-icon"><i class="now-ui-icons ui-1_calendar-60"></i></div>
+          <div class="period-total-info">
+            <span class="period-total-value">{{ formatCurrency(totalMonth) }}</span>
+            <span class="period-total-label">Este Mes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Totales por Método de Pago -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3><i class="now-ui-icons business_money-coins"></i> Ventas por Método de Pago</h3>
+      </div>
+      <div *ngIf="loadingPayments" class="loading-container" style="padding: 30px;">
+        <div class="spinner"></div>
+        <p>Cargando métodos de pago...</p>
+      </div>
+      <div *ngIf="!loadingPayments && paymentMethodTotals.length > 0" class="payment-methods-section">
+        <div class="payment-method-cards">
+          <div *ngFor="let pm of paymentMethodTotals"
+               class="payment-method-card"
+               [class.selected]="selectedPaymentMethod === pm.name"
+               (click)="filterByPaymentMethod(pm.name)">
+            <div class="pm-name">{{ pm.name }}</div>
+            <div class="pm-total">{{ formatCurrency(pm.total) }}</div>
+            <div class="pm-count">{{ pm.count }} ventas</div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!loadingPayments && paymentMethodTotals.length === 0" class="table-empty">
+        <i class="now-ui-icons business_money-coins"></i>
+        <p>No hay ventas registradas con métodos de pago en este periodo</p>
+      </div>
+    </div>
+
+    <!-- Desglose Diario -->
+    <div class="table-card" *ngIf="report.dailyBreakdown && report.dailyBreakdown.length > 0">
+      <div class="table-header">
+        <h3><i class="now-ui-icons ui-1_calendar-60"></i> Desglose Diario</h3>
+      </div>
+      <div class="table-body">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th class="text-center">Ventas</th>
+              <th class="text-right">Ingresos</th>
+              <th class="text-right">Costos</th>
+              <th class="text-right">Ganancia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let day of report.dailyBreakdown">
+              <td class="date-cell">{{ day.date }}</td>
+              <td class="text-center">{{ day.saleCount }}</td>
+              <td class="text-right revenue-cell">{{ formatCurrency(day.revenue) }}</td>
+              <td class="text-right cost-cell">{{ formatCurrency(day.cost) }}</td>
+              <td class="text-right" [ngClass]="day.profit >= 0 ? 'profit-positive' : 'profit-negative'">
+                {{ formatCurrency(day.profit) }}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td><strong>Total</strong></td>
+              <td class="text-center"><strong>{{ report.saleCount }}</strong></td>
+              <td class="text-right"><strong>{{ formatCurrency(report.totalRevenue) }}</strong></td>
+              <td class="text-right"><strong>{{ formatCurrency(report.totalCost) }}</strong></td>
+              <td class="text-right" [ngClass]="report.totalProfit >= 0 ? 'profit-positive' : 'profit-negative'">
+                <strong>{{ formatCurrency(report.totalProfit) }}</strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Desglose por Producto -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3><i class="now-ui-icons shopping_box"></i> Ganancia por Producto</h3>
+      </div>
+      <div class="table-body" *ngIf="report.productBreakdown && report.productBreakdown.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th class="text-center sortable" (click)="sortProducts('quantitySold')">
+                Vendidos
+                <span *ngIf="sortField === 'quantitySold'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th class="text-right sortable" (click)="sortProducts('revenue')">
+                Ingresos
+                <span *ngIf="sortField === 'revenue'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th class="text-right">Costos</th>
+              <th class="text-right sortable" (click)="sortProducts('profit')">
+                Ganancia
+                <span *ngIf="sortField === 'profit'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th class="text-center">Margen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let prod of sortedProducts">
+              <td class="code-cell">{{ prod.productCode }}</td>
+              <td>{{ prod.productName }}</td>
+              <td class="text-center">{{ prod.quantitySold }}</td>
+              <td class="text-right revenue-cell">{{ formatCurrency(prod.revenue) }}</td>
+              <td class="text-right cost-cell">{{ formatCurrency(prod.cost) }}</td>
+              <td class="text-right" [ngClass]="prod.profit >= 0 ? 'profit-positive' : 'profit-negative'">
+                {{ formatCurrency(prod.profit) }}
+              </td>
+              <td class="text-center">
+                <span class="margin-badge" [ngClass]="prod.profitMargin >= 30 ? 'margin-good' : prod.profitMargin >= 15 ? 'margin-ok' : 'margin-low'">
+                  {{ prod.profitMargin }}%
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-empty" *ngIf="!report.productBreakdown || report.productBreakdown.length === 0">
+        <i class="now-ui-icons shopping_bag-16"></i>
+        <p>No hay productos vendidos en este periodo</p>
+      </div>
+    </div>
+
+  </div>
+</div>

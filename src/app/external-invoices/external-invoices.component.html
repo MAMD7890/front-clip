@@ -1,0 +1,234 @@
+<div class="main-content">
+  <div class="section-header">
+    <div class="section-icon">
+      <i class="now-ui-icons files_single-copy-04"></i>
+    </div>
+    <div>
+      <h2>Facturación Externa</h2>
+      <p>Registra productos facturados en otro sistema y descuenta el inventario</p>
+    </div>
+  </div>
+
+  <!-- Alerta -->
+  <div *ngIf="message" class="alert" [class.alert-success]="messageType === 'success'" [class.alert-error]="messageType === 'error'">
+    {{ message }}
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'register'" (click)="switchTab('register')">
+      <i class="now-ui-icons ui-1_simple-add"></i> Registrar Factura
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="switchTab('history')">
+      <i class="now-ui-icons files_paper"></i> Historial
+    </button>
+  </div>
+
+  <!-- ======================== TAB: REGISTRAR ======================== -->
+  <div *ngIf="activeTab === 'register'" class="tab-content">
+    <form [formGroup]="invoiceForm" (ngSubmit)="submitInvoice()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Número de Factura *</label>
+          <input type="text" formControlName="invoiceNumber" placeholder="Ej: FE-001234">
+        </div>
+        <div class="form-group">
+          <label>Descripción (opcional)</label>
+          <input type="text" formControlName="description" placeholder="Ej: Factura electrónica cliente X">
+        </div>
+      </div>
+
+      <!-- Productos -->
+      <h4 class="section-subtitle">Productos</h4>
+      <div formArrayName="items">
+        <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" class="item-row">
+          <div class="item-field product-field">
+            <label>Producto *</label>
+            <input type="text" formControlName="productSearch"
+                   placeholder="Buscar producto..."
+                   (input)="filterProducts(i)"
+                   autocomplete="off">
+            <div class="autocomplete-list" *ngIf="filteredProducts[i]?.length > 0">
+              <div class="autocomplete-item" *ngFor="let p of filteredProducts[i]" (click)="selectProduct(i, p)">
+                <span class="prod-name">{{ p.name }}</span>
+                <span class="prod-code">{{ p.code }}</span>
+                <span class="prod-stock">Stock: {{ p.stockActual }}</span>
+                <span class="prod-price">{{ formatCurrency(p.finalPrice) }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="item-field qty-field">
+            <label>Cant.</label>
+            <input type="number" formControlName="quantity" min="1">
+          </div>
+          <div class="item-field price-field">
+            <label>P. Unit.</label>
+            <input type="number" formControlName="unitPrice" min="0">
+          </div>
+          <div class="item-field total-field">
+            <label>Total</label>
+            <span class="item-total">{{ formatCurrency(getItemTotal(i)) }}</span>
+          </div>
+          <button type="button" class="btn-remove" (click)="removeItem(i)" *ngIf="items.length > 1">
+            <i class="now-ui-icons ui-1_simple-remove"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="btn-add-item" (click)="addItem()">
+        <i class="now-ui-icons ui-1_simple-add"></i> Agregar producto
+      </button>
+
+      <div class="total-bar">
+        <span class="total-label">TOTAL FACTURA:</span>
+        <span class="total-value">{{ formatCurrency(getGrandTotal()) }}</span>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-submit" [disabled]="loadingSubmit">
+          <i class="now-ui-icons ui-1_check"></i>
+          {{ loadingSubmit ? 'Registrando...' : 'Registrar y Descontar Stock' }}
+        </button>
+        <button type="button" class="btn-cancel" (click)="resetForm()">Limpiar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ======================== TAB: HISTORIAL ======================== -->
+  <div *ngIf="activeTab === 'history'" class="tab-content">
+    <!-- Resumen KPIs -->
+    <div class="summary-cards" *ngIf="summary">
+      <div class="summary-card">
+        <div class="summary-icon blue"><i class="now-ui-icons files_single-copy-04"></i></div>
+        <div class="summary-info">
+          <span class="summary-value">{{ summary.cantidadFacturas }}</span>
+          <span class="summary-label">Facturas</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon green"><i class="now-ui-icons business_money-coins"></i></div>
+        <div class="summary-info">
+          <span class="summary-value">{{ formatCurrency(summary.totalFacturado) }}</span>
+          <span class="summary-label">Total Facturado</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon orange"><i class="now-ui-icons shopping_box"></i></div>
+        <div class="summary-info">
+          <span class="summary-value">{{ summary.cantidadProductos }}</span>
+          <span class="summary-label">Productos Vendidos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Desde:</label>
+        <input type="date" [(ngModel)]="filterStart">
+      </div>
+      <div class="filter-group">
+        <label>Hasta:</label>
+        <input type="date" [(ngModel)]="filterEnd">
+      </div>
+      <button class="btn-filter" (click)="loadHistory()">
+        <i class="now-ui-icons ui-1_zoom-bold"></i> Buscar
+      </button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+      <p *ngIf="loadingHistory" class="loading-text">Cargando...</p>
+      <p *ngIf="!loadingHistory && invoices.length === 0" class="empty-text">No hay facturas externas en este periodo.</p>
+
+      <table *ngIf="!loadingHistory && invoices.length > 0" class="data-table">
+        <thead>
+          <tr>
+            <th># Factura</th>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Productos</th>
+            <th>Total</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inv of invoices">
+            <td class="invoice-number">{{ inv.invoiceNumber }}</td>
+            <td>{{ formatDateTime(inv.date) }}</td>
+            <td>{{ inv.description || '—' }}</td>
+            <td>{{ inv.items?.length || 0 }}</td>
+            <td class="amount">{{ formatCurrency(inv.totalValue) }}</td>
+            <td class="actions">
+              <button class="btn-icon blue" (click)="viewDetail(inv)" title="Ver detalle">
+                <i class="now-ui-icons ui-1_zoom-bold"></i>
+              </button>
+              <button class="btn-icon red" (click)="confirmDelete(inv)" title="Eliminar y devolver stock">
+                <i class="now-ui-icons ui-1_simple-remove"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL DETALLE ======================== -->
+  <div class="modal-overlay" *ngIf="selectedInvoice" (click)="closeDetail()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Factura {{ selectedInvoice.invoiceNumber }}</h3>
+        <button class="modal-close" (click)="closeDetail()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Fecha:</strong> {{ formatDateTime(selectedInvoice.date) }}</p>
+        <p *ngIf="selectedInvoice.description"><strong>Descripción:</strong> {{ selectedInvoice.description }}</p>
+
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Código</th>
+              <th>Cant.</th>
+              <th>P. Unit.</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of selectedInvoice.items">
+              <td>{{ item.productName }}</td>
+              <td>{{ item.productCode }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ formatCurrency(item.unitPrice) }}</td>
+              <td>{{ formatCurrency(item.totalPrice) }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="total-label">TOTAL</td>
+              <td class="total-value">{{ formatCurrency(selectedInvoice.totalValue) }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL CONFIRMAR ELIMINAR ======================== -->
+  <div class="modal-overlay" *ngIf="invoiceToDelete" (click)="cancelDelete()">
+    <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Confirmar eliminación</h3>
+        <button class="modal-close" (click)="cancelDelete()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de eliminar la factura <strong>{{ invoiceToDelete.invoiceNumber }}</strong>?</p>
+        <p class="warning-text">El stock de los productos será devuelto al inventario.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="cancelDelete()">Cancelar</button>
+        <button class="btn-danger" (click)="deleteInvoice()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>

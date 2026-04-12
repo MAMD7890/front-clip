@@ -1,0 +1,103 @@
+<div class="history-container">
+  <div class="section-header">
+    <h1><i class="now-ui-icons files_paper section-icon"></i> Historial de Ventas</h1>
+    <p>Consulta ventas registradas y filtra por rango de fechas</p>
+  </div>
+
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">{{ message }}</div>
+
+  <div class="filters-card">
+    <div class="filter-group">
+      <label for="startDate">Desde</label>
+      <input id="startDate" type="datetime-local" [(ngModel)]="startDate" class="form-control" />
+    </div>
+    <div class="filter-group">
+      <label for="endDate">Hasta</label>
+      <input id="endDate" type="datetime-local" [(ngModel)]="endDate" class="form-control" />
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-primary" (click)="applyFilters()">Filtrar</button>
+      <button class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando historial...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading">
+    <table class="table" *ngIf="sales.length > 0; else noData">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Total</th>
+          <th>Metodos de Pago</th>
+          <th>Detalle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let sale of paginatedSales">
+          <tr>
+            <td>#{{ sale.id }}</td>
+            <td>{{ getCustomerName(sale.customerId) }}</td>
+            <td>{{ getSaleDate(sale) }}</td>
+            <td class="total-cell">{{ formatPrice(sale.totalValue) }}</td>
+            <td>{{ sale.paymentMethodNames?.join(', ') || 'Sin metodos' }}</td>
+            <td>
+              <button class="btn-link" (click)="toggleDetails(sale.id)">
+                {{ isExpanded(sale.id) ? 'Ocultar' : 'Ver items' }}
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="isExpanded(sale.id)">
+            <td colspan="6" class="details-cell">
+              <div class="details-box">
+                <h4>Items de la venta</h4>
+                <table class="detail-table" *ngIf="sale.items?.length; else noItems">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Precio Unitario</th>
+                      <th>Total Linea</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of sale.items">
+                      <td>{{ getProductName(item.productId) }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td>{{ formatPrice(item.unitPrice) }}</td>
+                      <td>{{ formatPrice(item.totalPrice) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <ng-template #noItems>
+                  <p>No hay items para esta venta.</p>
+                </ng-template>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">&laquo; Anterior</button>
+      <button *ngFor="let page of pages" class="page-btn" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
+      <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Siguiente &raquo;</button>
+    </div>
+
+    <ng-template #noData>
+      <div class="empty-state">
+        <i class="now-ui-icons files_box empty-icon"></i>
+        <h3>No se encontraron ventas</h3>
+        <p>Intenta ajustar los filtros o registra una nueva venta</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
