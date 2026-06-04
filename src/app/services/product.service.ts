@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Product, ProductResponse, ProductSearchParams } from '../models/product.models';
+import { Product, ProductResponse, ProductSearchParams, ExcelProductImportResponse } from '../models/product.models';
 
 @Injectable({
   providedIn: 'root'
@@ -57,5 +57,14 @@ export class ProductService {
    */
   deleteProduct(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  /**
+   * Importar productos desde un archivo Excel
+   */
+  importarExcel(file: File): Observable<ExcelProductImportResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ExcelProductImportResponse>(`${this.baseUrl}/importar-excel`, formData);
   }
 }

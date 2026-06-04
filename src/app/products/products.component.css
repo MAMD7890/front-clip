@@ -41,6 +41,34 @@
   font-size: 13px;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-import {
+  background-color: #11cdef;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(17, 205, 239, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.btn-import:hover {
+  background-color: #0aa3b3;
+  box-shadow: 0 4px 14px rgba(17, 205, 239, 0.35);
+}
+
 .btn-create {
   background-color: #fdc830;
   color: #1a1a1a;

@@ -1,0 +1,199 @@
+<div class="import-products-container">
+  <!-- Header -->
+  <div class="import-header">
+    <div class="header-content">
+      <h1>
+        <i class="now-ui-icons files_single-copy-04"></i>
+        Importar Productos desde Excel
+      </h1>
+      <p>Carga múltiples productos de una sola vez desde un archivo Excel</p>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">
+    {{ message }}
+  </div>
+
+  <!-- Main Content -->
+  <div class="import-content">
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <!-- Drag and Drop Area -->
+      <div class="drag-drop-area" [class.dragover]="dragover" (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+        <div class="drag-drop-content">
+          <i class="now-ui-icons files_box drag-icon"></i>
+          <h3>Arrastra tu archivo Excel aquí</h3>
+          <p>o</p>
+          <label for="fileInput" class="file-input-label">
+            <span>Selecciona un archivo</span>
+            <input id="fileInput" type="file" accept=".xlsx" (change)="onFileSelected($event)"
+              hidden />
+          </label>
+          <p class="file-info">Formato: .xlsx | Tamaño máximo: 10 MB</p>
+        </div>
+      </div>
+
+      <!-- Selected File Info -->
+      <div *ngIf="selectedFile" class="selected-file-info">
+        <div class="file-details">
+          <i class="now-ui-icons files_single-copy-04"></i>
+          <div class="file-text">
+            <p class="file-name">{{ selectedFile.name }}</p>
+            <p class="file-size">{{ (selectedFile.size / 1024).toFixed(2) }} KB</p>
+          </div>
+          <button class="btn-clear" (click)="clearFile()" title="Limpiar selección">
+            <i class="now-ui-icons ui-1_simple-remove"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="importFile()" [disabled]="!selectedFile || loading">
+          <i class="now-ui-icons" [ngClass]="loading ? 'loader_refresh spin-icon' : 'ui-1_cloud-upload-93'"></i>
+          <span>{{ loading ? 'Importando...' : 'Importar Archivo' }}</span>
+        </button>
+        <button class="btn btn-secondary" (click)="downloadTemplate()">
+          <i class="now-ui-icons files_single-copy-04"></i>
+          <span>Descargar Plantilla</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Information Section -->
+    <div class="info-section">
+      <h3>Instrucciones</h3>
+      <div class="info-content">
+        <div class="instruction-item">
+          <i class="now-ui-icons design-2_ruler-pencil"></i>
+          <div>
+            <h4>Estructura del Excel</h4>
+            <p>Tu archivo debe tener exactamente 7 columnas en este orden:</p>
+            <ul>
+              <li><strong>Nombre</strong> - Nombre del producto (mín. 3 caracteres)</li>
+              <li><strong>Código</strong> - Código único del producto (mín. 2 caracteres)</li>
+              <li><strong>Costo</strong> - Precio de costo (mayor a 0)</li>
+              <li><strong>Precio Final</strong> - Opcional (se calcula automáticamente)</li>
+              <li><strong>Stock Actual</strong> - Cantidad disponible (≥ 0)</li>
+              <li><strong>Stock Mínimo</strong> - Cantidad mínima (≥ 0)</li>
+              <li><strong>IVA</strong> - Porcentaje de IVA (opcional)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="instruction-item">
+          <i class="now-ui-icons ui-1_bulb-63"></i>
+          <div>
+            <h4>Tips Importantes</h4>
+            <ul>
+              <li>El archivo debe estar en formato <strong>.xlsx</strong></li>
+              <li>Los códigos deben ser <strong>únicos</strong> en el sistema</li>
+              <li>Si el Precio Final no se especifica, se calcula como: Costo / 0.70</li>
+              <li>Los errores no afectan otros productos (importación transaccional)</li>
+              <li>Máximo 10 MB por archivo</li>
+              <li>Puedes importar cientos de productos en segundos</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="instruction-item">
+          <i class="now-ui-icons design-2_preferences-1"></i>
+          <div>
+            <h4>Validaciones Automáticas</h4>
+            <p>Cada producto será validado automáticamente:</p>
+            <ul>
+              <li>✓ Nombre requerido, mín 3 caracteres</li>
+              <li>✓ Código requerido, mín 2 caracteres, debe ser único</li>
+              <li>✓ Costo requerido y mayor a 0</li>
+              <li>✓ Stock Actual requerido, no puede ser negativo</li>
+              <li>✓ Stock Mínimo requerido, no puede ser negativo</li>
+              <li>✓ IVA opcional, no puede ser negativo</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Results -->
+  <div *ngIf="importResult && showDetails" class="results-section">
+    <div class="results-header">
+      <h2>Resultado de la Importación</h2>
+      <button class="btn-toggle" (click)="showDetails = !showDetails">
+        <i class="now-ui-icons" [ngClass]="showDetails ? 'design_bullet-list-67' : 'design_bullet-list-67'"></i>
+      </button>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="results-summary">
+      <div class="stat-card stat-total">
+        <div class="stat-value">{{ importResult.total }}</div>
+        <div class="stat-label">Total Procesados</div>
+      </div>
+      <div class="stat-card stat-success">
+        <div class="stat-value">{{ importResult.exitosos }}</div>
+        <div class="stat-label">Exitosos ✓</div>
+      </div>
+      <div class="stat-card stat-error">
+        <div class="stat-value">{{ importResult.errores }}</div>
+        <div class="stat-label">Errores ✗</div>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="results-table-container">
+      <table class="results-table" *ngIf="importResult.detalles.length > 0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Código</th>
+            <th>Costo</th>
+            <th>Stock</th>
+            <th>Estado</th>
+            <th>Mensaje</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let detail of importResult.detalles; let i = index"
+            [ngClass]="'row-' + detail.estado.toLowerCase()">
+            <td data-label="#">{{ i + 1 }}</td>
+            <td data-label="Nombre">{{ detail.nombre }}</td>
+            <td data-label="Código"><span class="code-badge">{{ detail.codigo }}</span></td>
+            <td data-label="Costo">{{ detail.costo }}</td>
+            <td data-label="Stock">{{ detail.stockActual }}</td>
+            <td data-label="Estado">
+              <span class="status-badge" [ngClass]="getStatusClass(detail)">
+                {{ detail.estado === 'EXITOSO' ? '✓ Exitoso' : '✗ Error' }}
+              </span>
+            </td>
+            <td data-label="Mensaje" class="message-cell">
+              <span class="message-text">{{ detail.mensaje || '-' }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Action Buttons After Import -->
+    <div class="results-actions">
+      <button class="btn btn-primary" routerLink="/products">
+        <i class="now-ui-icons shopping_box"></i>
+        <span>Ver Todos los Productos</span>
+      </button>
+      <button class="btn btn-secondary" (click)="clearFile()">
+        <i class="now-ui-icons ui-1_simple-remove"></i>
+        <span>Importar Otro Archivo</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Importando productos...</p>
+    <p class="loading-subtitle">Por favor espera, esto puede tomar unos segundos</p>
+  </div>
+</div>

@@ -11,6 +11,7 @@ import { AppRoutingModule } from './app.routing';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { ProductsComponent } from './products/products.component';
+import { ImportProductosComponent } from './products/import-productos.component';
 import { LayoutComponent } from './layout/layout.component';
 import { NavbarComponent } from './layout/navbar.component';
 import { SidebarComponent } from './layout/sidebar.component';
@@ -45,6 +46,7 @@ import { AuthInterceptor } from './services/auth.interceptor';
     AppComponent,
     LoginComponent,
     ProductsComponent,
+    ImportProductosComponent,
     LayoutComponent,
     NavbarComponent,
     SidebarComponent,

@@ -6,6 +6,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { LayoutComponent } from './layout/layout.component';
 import { ProductsComponent } from './products/products.component';
+import { ImportProductosComponent } from './products/import-productos.component';
 import { PaymentMethodsComponent } from './payment-methods/payment-methods.component';
 import { SaleRegisterComponent } from './sales/sale-register.component';
 import { SaleHistoryComponent } from './sales/sale-history.component';
@@ -28,6 +29,7 @@ const routes: Routes =[
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'products', component: ProductsComponent },
+      { path: 'products/import', component: ImportProductosComponent },
       { path: 'payment-methods', component: PaymentMethodsComponent },
       { path: 'sales/register', component: SaleRegisterComponent },
       { path: 'sales/history', component: SaleHistoryComponent },

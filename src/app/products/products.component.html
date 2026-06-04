@@ -5,10 +5,16 @@
       <h1><i class="now-ui-icons shopping_box section-icon"></i> Inventario de Productos</h1>
       <p>Gestiona tu catálogo de productos</p>
     </div>
-    <button class="btn-create" (click)="showNewForm()">
-      <i class="now-ui-icons ui-1_simple-add"></i>
-      <span>Crear Producto</span>
-    </button>
+    <div class="header-buttons">
+      <button class="btn-import" routerLink="/products/import">
+        <i class="now-ui-icons files_single-copy-04"></i>
+        <span>Importar Excel</span>
+      </button>
+      <button class="btn-create" (click)="showNewForm()">
+        <i class="now-ui-icons ui-1_simple-add"></i>
+        <span>Crear Producto</span>
+      </button>
+    </div>
   </div>
 
   <!-- Message -->
