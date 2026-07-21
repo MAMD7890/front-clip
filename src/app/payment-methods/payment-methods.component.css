@@ -301,3 +301,76 @@
   background: #fdc830;
   color: #1a1a1a;
 }
+
+.filters-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 150px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #666;
+}
+
+.filter-group .form-control {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.filter-group .form-control:focus {
+  outline: none;
+  border-color: #fdc830;
+  box-shadow: 0 0 0 2px rgba(253, 200, 48, 0.1);
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-actions .btn {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.date-cell {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .filters-card {
+    flex-wrap: wrap;
+    flex-direction: column;
+  }
+
+  .filter-group {
+    min-width: 100%;
+  }
+
+  .filter-actions {
+    width: 100%;
+  }
+
+  .filter-actions .btn {
+    flex: 1;
+  }
+}

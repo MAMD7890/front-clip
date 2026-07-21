@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReportService, ProfitReport } from '../services/report.service';
 import { SaleService } from '../services/sale.service';
 import { PaymentMethodService } from '../services/payment-method.service';
+import { DateFormatterService } from '../services/date-formatter.service';
 import { PaymentMethod } from '../models/payment-method.models';
 import { Sale } from '../models/sale.models';
 
@@ -46,7 +47,8 @@ export class ReportsComponent implements OnInit {
   constructor(
     private reportService: ReportService,
     private saleService: SaleService,
-    private paymentMethodService: PaymentMethodService
+    private paymentMethodService: PaymentMethodService,
+    private dateFormatter: DateFormatterService
   ) {}
 
   ngOnInit(): void {
@@ -250,9 +252,6 @@ export class ReportsComponent implements OnInit {
   }
 
   private formatDate(date: Date): string {
-    const y = date.getFullYear();
-    const m = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : '' + (date.getMonth() + 1);
-    const d = date.getDate() < 10 ? '0' + date.getDate() : '' + date.getDate();
-    return `${y}-${m}-${d}`;
+    return this.dateFormatter.getColombiaDay(date);
   }
 }

@@ -17,4 +17,5 @@ export interface Sale {
   saleDate?: string;
   credit?: boolean;
   creditNotes?: string;
+  receiptBase64?: string;
 }

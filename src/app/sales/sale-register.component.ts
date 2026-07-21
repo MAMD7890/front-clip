@@ -8,6 +8,7 @@ import { CustomerService } from '../services/customer.service';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { ProductService } from '../services/product.service';
 import { SaleService } from '../services/sale.service';
+import { PrinterService } from '../services/printer.service';
 
 @Component({
   selector: 'app-sale-register',
@@ -30,7 +31,8 @@ export class SaleRegisterComponent implements OnInit {
     private customerService: CustomerService,
     private productService: ProductService,
     private paymentMethodService: PaymentMethodService,
-    private saleService: SaleService
+    private saleService: SaleService,
+    private printerService: PrinterService
   ) {
     this.saleForm = this.fb.group({
       customerId: [null],
@@ -290,6 +292,17 @@ export class SaleRegisterComponent implements OnInit {
         this.loadingSubmit = false;
         this.showMessage('Venta registrada correctamente. ID #' + sale.id, 'success');
         this.resetForm();
+
+        if (sale.receiptBase64) {
+          const imprimir = window.confirm('¿Desea imprimir el recibo de la venta #' + sale.id + '?');
+          if (imprimir) {
+            this.printerService.printReceipt(sale.receiptBase64).catch((err: any) => {
+              console.error('[Printer] Error al imprimir:', err);
+              const detail = err && err.message ? err.message : 'verifica que QZ Tray esté activo en este PC.';
+              this.showMessage('No se pudo imprimir — ' + detail, 'error');
+            });
+          }
+        }
       },
       error: (err) => {
         this.loadingSubmit = false;

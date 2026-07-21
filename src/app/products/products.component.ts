@@ -21,6 +21,22 @@ export class ProductsComponent implements OnInit {
   errors: { [key: string]: string } = {};
   searchQuery: string = '';
 
+  // Paginación
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  paginatedProducts: ProductResponse[] = [];
+  totalPages: number = 1;
+
+  // Filtros
+  showLowStockOnly: boolean = false;
+  lowStockCount: number = 0;
+
+  // Modal de Confirmación
+  showConfirmDialog: boolean = false;
+  confirmMessage: string = '';
+  confirmTitle: string = '';
+  confirmAction: (() => void) | null = null;
+
   constructor(
     private fb: FormBuilder,
     private productService: ProductService
@@ -47,7 +63,8 @@ export class ProductsComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (data) => {
         this.products = data;
-        this.filteredProducts = data;
+        this.lowStockCount = data.filter(p => p.stockActual < p.stockMin).length;
+        this.searchProducts(); // Aplica filtros
         this.loading = false;
       },
       error: (err) => {
@@ -62,16 +79,103 @@ export class ProductsComponent implements OnInit {
    * Buscar productos por nombre o código
    */
   searchProducts() {
-    if (!this.searchQuery.trim()) {
-      this.filteredProducts = this.products;
-      return;
+    let result = this.products;
+
+    // Filtro de búsqueda
+    if (this.searchQuery.trim()) {
+      const query = this.searchQuery.toLowerCase();
+      result = result.filter(p =>
+        p.name.toLowerCase().includes(query) ||
+        p.code.toLowerCase().includes(query)
+      );
     }
 
-    const query = this.searchQuery.toLowerCase();
-    this.filteredProducts = this.products.filter(p =>
-      p.name.toLowerCase().includes(query) ||
-      p.code.toLowerCase().includes(query)
-    );
+    // Filtro de bajo stock
+    if (this.showLowStockOnly) {
+      result = result.filter(p => p.stockActual < p.stockMin);
+    }
+
+    this.filteredProducts = result;
+    this.lowStockCount = this.products.filter(p => p.stockActual < p.stockMin).length;
+    this.currentPage = 1; // Reset a primera página
+    this.updatePagination();
+  }
+
+  /**
+   * Alternar filtro de bajo stock
+   */
+  toggleLowStockFilter() {
+    this.showLowStockOnly = !this.showLowStockOnly;
+    this.searchProducts();
+  }
+
+  /**
+   * Actualizar paginación
+   */
+  updatePagination() {
+    this.totalPages = Math.ceil(this.filteredProducts.length / this.itemsPerPage);
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages;
+    }
+    
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+  }
+
+  /**
+   * Ir a página anterior
+   */
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+
+  /**
+   * Ir a página siguiente
+   */
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
+  /**
+   * Ir a página específica
+   */
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  /**
+   * Obtener números de página para mostrar
+   */
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 3;
+    const start = Math.max(2, this.currentPage - 1);
+    const end = Math.min(this.totalPages - 1, this.currentPage + 1);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  /**
+   * Obtener rango visible de productos
+   */
+  getVisibleRange(): string {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredProducts.length);
+    return `${start} - ${end}`;
   }
 
   /**
@@ -165,21 +269,42 @@ export class ProductsComponent implements OnInit {
    * Eliminar producto
    */
   deleteProduct(id: number, name: string) {
-    if (confirm(`¿Estás seguro de que deseas eliminar "${name}"?`)) {
+    this.confirmTitle = 'Eliminar Producto';
+    this.confirmMessage = `¿Estás seguro de que deseas eliminar "${name}"? Esta acción no se puede deshacer.`;
+    this.confirmAction = () => {
       this.loading = true;
       this.productService.deleteProduct(id).subscribe({
         next: () => {
+          this.showConfirmDialog = false;
           this.showMessage('Producto eliminado correctamente', 'success');
           this.loading = false;
           this.loadProducts();
         },
         error: (err) => {
           this.loading = false;
-          this.showMessage('Error al eliminar producto', 'error');
-          console.error('Error:', err);
+          this.showConfirmDialog = false;
+          
+          // Extraer mensaje de error del servidor
+          let errorMsg = 'Error al eliminar producto';
+          
+          if (err?.error) {
+            if (typeof err.error === 'string') {
+              errorMsg = err.error;
+            } else if (typeof err.error === 'object') {
+              errorMsg = err.error.error || err.error.message || err.error.detail || JSON.stringify(err.error);
+            }
+          } else if (err?.message) {
+            errorMsg = err.message;
+          } else if (err?.statusText) {
+            errorMsg = err.statusText;
+          }
+          
+          this.showMessage(errorMsg, 'error');
+          console.error('Error completo:', err);
         }
       });
-    }
+    };
+    this.showConfirmDialog = true;
   }
 
   /**
@@ -197,6 +322,25 @@ export class ProductsComponent implements OnInit {
     if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
       this.cancelForm();
     }
+  }
+
+  /**
+   * Confirmar acción del diálogo
+   */
+  confirmDialogAction() {
+    if (this.confirmAction) {
+      this.confirmAction();
+    }
+  }
+
+  /**
+   * Cancelar diálogo de confirmación
+   */
+  cancelConfirmDialog() {
+    this.showConfirmDialog = false;
+    this.confirmAction = null;
+    this.confirmMessage = '';
+    this.confirmTitle = '';
   }
 
   /**
@@ -222,7 +366,23 @@ export class ProductsComponent implements OnInit {
       this.errors = err.error;
       this.showMessage('Por favor, revisa los errores en el formulario', 'error');
     } else {
-      const errorMsg = err.error?.error || err.error?.message || 'Error desconocido';
+      // Extraer mensaje descriptivo del error
+      let errorMsg = 'Error desconocido';
+      
+      if (err.error) {
+        if (typeof err.error === 'string') {
+          errorMsg = err.error;
+        } else if (err.error.error) {
+          errorMsg = err.error.error;
+        } else if (err.error.message) {
+          errorMsg = err.error.message;
+        }
+      } else if (err.message) {
+        errorMsg = err.message;
+      } else if (err.statusText) {
+        errorMsg = err.statusText;
+      }
+      
       this.showMessage(errorMsg, 'error');
     }
   }

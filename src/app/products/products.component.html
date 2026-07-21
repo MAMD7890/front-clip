@@ -22,18 +22,32 @@
     {{ message }}
   </div>
 
-  <!-- Búsqueda + contador -->
+  <!-- Búsqueda + filtros + contador -->
   <div class="toolbar">
-    <div class="search-bar">
-      <i class="now-ui-icons ui-1_zoom-bold search-icon"></i>
-      <input
-        type="text"
-        class="search-input"
-        placeholder="Buscar por nombre o código..."
-        [(ngModel)]="searchQuery"
-        (input)="searchProducts()"
-      />
+    <div class="toolbar-left">
+      <div class="search-bar">
+        <i class="now-ui-icons ui-1_zoom-bold search-icon"></i>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar por nombre o código..."
+          [(ngModel)]="searchQuery"
+          (input)="searchProducts()"
+        />
+      </div>
+
+      <!-- Filtro de Bajo Stock -->
+      <button 
+        class="filter-btn"
+        [class.active]="showLowStockOnly"
+        (click)="toggleLowStockFilter()"
+        [title]="showLowStockOnly ? 'Mostrar todos' : 'Mostrar solo bajo stock'">
+        <i class="now-ui-icons shopping_tag"></i>
+        <span class="filter-label">Bajo Stock</span>
+        <span class="badge" *ngIf="lowStockCount > 0">{{ lowStockCount }}</span>
+      </button>
     </div>
+
     <div class="toolbar-info">
       <span class="product-count">{{ filteredProducts.length }} producto{{ filteredProducts.length !== 1 ? 's' : '' }}</span>
     </div>
@@ -62,8 +76,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let product of filteredProducts; let i = index">
-          <td data-label="#">{{ i + 1 }}</td>
+        <tr *ngFor="let product of paginatedProducts; let i = index">
+          <td data-label="#">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
           <td data-label="Nombre" class="name-cell">{{ product.name }}</td>
           <td data-label="Código"><span class="code-badge">{{ product.code }}</span></td>
           <td data-label="Costo" class="price-cell">{{ formatPrice(product.cost) }}</td>
@@ -86,6 +100,65 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- Controles de Paginación -->
+    <div class="pagination-container" *ngIf="filteredProducts.length > itemsPerPage">
+      <div class="pagination-info">
+        <span>Mostrando {{ getVisibleRange() }} de {{ filteredProducts.length }}</span>
+      </div>
+      
+      <div class="pagination-controls">
+        <button 
+          class="btn-paginate" 
+          (click)="previousPage()" 
+          [disabled]="currentPage === 1"
+          title="Página anterior">
+          <i class="now-ui-icons arrows-1_minimal-left"></i>
+        </button>
+
+        <div class="page-numbers">
+          <button 
+            *ngFor="let page of [1]; let i = index"
+            class="page-btn"
+            [class.active]="currentPage === page"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+
+          <!-- Puntos suspensivos si hay muchas páginas -->
+          <span *ngIf="totalPages > 5 && currentPage > 3" class="page-dots">...</span>
+
+          <!-- Páginas alrededor de la actual -->
+          <button 
+            *ngFor="let page of getPageNumbers()"
+            class="page-btn"
+            [class.active]="currentPage === page"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+
+          <!-- Puntos suspensivos al final -->
+          <span *ngIf="totalPages > 5 && currentPage < totalPages - 2" class="page-dots">...</span>
+
+          <!-- Última página -->
+          <button 
+            *ngIf="totalPages > 1"
+            class="page-btn"
+            [class.active]="currentPage === totalPages"
+            (click)="goToPage(totalPages)">
+            {{ totalPages }}
+          </button>
+        </div>
+
+        <button 
+          class="btn-paginate" 
+          (click)="nextPage()" 
+          [disabled]="currentPage === totalPages"
+          title="Siguiente página">
+          <i class="now-ui-icons arrows-1_minimal-right"></i>
+        </button>
+      </div>
+    </div>
 
     <ng-template #noProducts>
       <div class="no-products">
@@ -176,3 +249,37 @@
     </div>
   </div>
 </div>
+
+<!-- ===== MODAL DE CONFIRMACIÓN ===== -->
+<div class="confirm-overlay" *ngIf="showConfirmDialog" (click)="cancelConfirmDialog()">
+  <div class="confirm-dialog" (click)="$event.stopPropagation()">
+    <!-- Header del Diálogo -->
+    <div class="confirm-header">
+      <div class="confirm-icon warning">
+        <i class="now-ui-icons ui-2_favourite-28"></i>
+      </div>
+    </div>
+
+    <!-- Body del Diálogo -->
+    <div class="confirm-body">
+      <h2 class="confirm-title">{{ confirmTitle }}</h2>
+      <p class="confirm-message">{{ confirmMessage }}</p>
+    </div>
+
+    <!-- Footer del Diálogo -->
+    <div class="confirm-footer">
+      <button type="button" class="btn btn-secondary" (click)="cancelConfirmDialog()">
+        Cancelar
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-danger" 
+        (click)="confirmDialogAction()"
+        [disabled]="loading">
+        <i class="now-ui-icons" [ngClass]="loading ? 'loader_refresh spin-icon' : 'ui-1_trash-clean'"></i>
+        <span>{{ loading ? 'Eliminando...' : 'Eliminar' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+

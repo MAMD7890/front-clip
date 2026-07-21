@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CreditService } from '../services/credit.service';
+import { DateFormatterService } from '../services/date-formatter.service';
 import { Credit, CreditPayment, CustomerCredits } from '../models/credit.models';
 
 @Component({
@@ -39,7 +40,8 @@ export class CreditsComponent implements OnInit {
 
   constructor(
     private creditService: CreditService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dateFormatter: DateFormatterService
   ) {
     this.paymentForm = this.fb.group({
       amount: ['', [Validators.required, Validators.min(1)]],
@@ -242,17 +244,12 @@ export class CreditsComponent implements OnInit {
 
   formatDate(date: string | undefined): string {
     if (!date) return '—';
-    return new Date(date).toLocaleDateString('es-CO', {
-      day: '2-digit', month: 'short', year: 'numeric'
-    });
+    return this.dateFormatter.formatDate(date, 'short');
   }
 
   formatDateTime(date: string | undefined): string {
     if (!date) return '—';
-    return new Date(date).toLocaleDateString('es-CO', {
-      day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
+    return this.dateFormatter.formatDate(date, 'datetime');
   }
 
   getProgressPercent(credit: Credit): number {

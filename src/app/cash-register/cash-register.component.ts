@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CashRegisterDto, CashMovementDto, MovementType } from '../models/cash-register.models';
 import { CashRegisterService } from '../services/cash-register.service';
+import { DateFormatterService } from '../services/date-formatter.service';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -34,7 +35,10 @@ export class CashRegisterComponent implements OnInit, OnDestroy {
 
   private refreshSub: Subscription | null = null;
 
-  constructor(private cashService: CashRegisterService) {}
+  constructor(
+    private cashService: CashRegisterService,
+    private dateFormatter: DateFormatterService
+  ) {}
 
   ngOnInit(): void {
     this.loadCurrent();
@@ -228,17 +232,13 @@ export class CashRegisterComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dateStr: string | null): string {
-    if (!dateStr) return '\u2014';
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleString('es-CO');
+    if (!dateStr) return '—';
+    return this.dateFormatter.formatDate(dateStr, 'datetime');
   }
 
   formatTime(dateStr: string | null | undefined): string {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '';
-    return d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    return this.dateFormatter.formatDate(dateStr, 'time');
   }
 
   getMovementTypeLabel(type: MovementType): string {

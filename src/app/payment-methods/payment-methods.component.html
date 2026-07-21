@@ -22,10 +22,24 @@
         class="search-input"
         placeholder="Buscar metodo por nombre..."
         [(ngModel)]="searchQuery"
-        (input)="searchPaymentMethods()"
+        (input)="applyFilters()"
       />
     </div>
     <span class="toolbar-count">{{ filteredPaymentMethods.length }} metodo{{ filteredPaymentMethods.length !== 1 ? 's' : '' }}</span>
+  </div>
+
+  <div class="filters-card">
+    <div class="filter-group">
+      <label for="startDate">Desde</label>
+      <input id="startDate" type="date" [(ngModel)]="startDate" class="form-control" (change)="applyFilters()" />
+    </div>
+    <div class="filter-group">
+      <label for="endDate">Hasta</label>
+      <input id="endDate" type="date" [(ngModel)]="endDate" class="form-control" (change)="applyFilters()" />
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-secondary" (click)="clearFilters()">Limpiar Filtros</button>
+    </div>
   </div>
 
   <div class="loading-spinner" *ngIf="loading">
@@ -39,6 +53,7 @@
         <tr>
           <th>#</th>
           <th>Nombre</th>
+          <th>Fecha de Creación</th>
           <th class="th-actions">Acciones</th>
         </tr>
       </thead>
@@ -46,6 +61,7 @@
         <tr *ngFor="let item of filteredPaymentMethods; let i = index">
           <td>{{ i + 1 }}</td>
           <td class="name-cell">{{ item.name }}</td>
+          <td class="date-cell">{{ getFormattedDate(item) }}</td>
           <td class="actions-cell">
             <button class="btn-action btn-edit" (click)="editPaymentMethod(item)" title="Editar">
               <i class="now-ui-icons design-2_ruler-pencil"></i>

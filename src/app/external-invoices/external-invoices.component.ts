@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ExternalInvoice, ExternalInvoiceService, ExternalInvoiceSummary } from '../services/external-invoice.service';
 import { ProductService } from '../services/product.service';
+import { DateFormatterService } from '../services/date-formatter.service';
 import { ProductResponse } from '../models/product.models';
 
 @Component({
@@ -39,7 +40,8 @@ export class ExternalInvoicesComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private externalInvoiceService: ExternalInvoiceService,
-    private productService: ProductService
+    private productService: ProductService,
+    private dateFormatter: DateFormatterService
   ) {
     this.invoiceForm = this.fb.group({
       invoiceNumber: ['', [Validators.required]],
@@ -255,12 +257,6 @@ export class ExternalInvoicesComponent implements OnInit {
 
   formatDateTime(dateStr: string): string {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
-    const day = ('0' + d.getDate()).slice(-2);
-    const month = ('0' + (d.getMonth() + 1)).slice(-2);
-    const year = d.getFullYear();
-    const hours = ('0' + d.getHours()).slice(-2);
-    const mins = ('0' + d.getMinutes()).slice(-2);
-    return day + '/' + month + '/' + year + ' ' + hours + ':' + mins;
+    return this.dateFormatter.formatDate(dateStr, 'datetime');
   }
 }

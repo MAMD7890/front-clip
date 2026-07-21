@@ -56,7 +56,7 @@ export class ProductService {
    * Eliminar un producto
    */
   deleteProduct(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    return this.http.post<void>(`${this.baseUrl}/${id}/delete`, {});
   }
 
   /**

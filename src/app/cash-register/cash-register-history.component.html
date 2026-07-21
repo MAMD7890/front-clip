@@ -58,6 +58,17 @@
             <tr *ngIf="isExpanded(caja.id)">
               <td colspan="9" class="details-cell">
                 <div class="details-box">
+                  <div class="details-header">
+                    <h4>Resumen de Caja #{{ caja.id }}</h4>
+                    <button 
+                      class="btn btn-download" 
+                      (click)="downloadReport(caja.id)"
+                      [disabled]="downloadingCajas[caja.id]"
+                      title="Descargar reporte en PDF">
+                      <i class="now-ui-icons ui-2_settings-90"></i>
+                      {{ downloadingCajas[caja.id] ? 'Descargando...' : 'Descargar PDF' }}
+                    </button>
+                  </div>
                   <div class="detail-summary">
                     <div class="summary-item">
                       <span class="summary-label">Base</span>

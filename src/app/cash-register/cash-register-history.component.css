@@ -166,6 +166,50 @@
   margin: 18px 0 10px;
 }
 
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.details-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2c2c2c;
+}
+
+.btn-download {
+  background: #f96332;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.3s ease;
+}
+
+.btn-download:hover:not(:disabled) {
+  background: #e84a1f;
+}
+
+.btn-download:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-download i {
+  font-size: 1rem;
+}
+
 /* Detail summary */
 .detail-summary {
   display: flex;

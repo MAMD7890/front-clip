@@ -5,6 +5,7 @@ import { Sale } from '../models/sale.models';
 import { CustomerService } from '../services/customer.service';
 import { ProductService } from '../services/product.service';
 import { SaleService } from '../services/sale.service';
+import { DateFormatterService } from '../services/date-formatter.service';
 
 @Component({
   selector: 'app-sale-history',
@@ -13,12 +14,14 @@ import { SaleService } from '../services/sale.service';
 })
 export class SaleHistoryComponent implements OnInit {
   sales: Sale[] = [];
+  filteredSales: Sale[] = [];
   customersById: { [key: number]: Customer } = {};
   productsById: { [key: number]: ProductResponse } = {};
   loading = false;
 
   startDate = '';
   endDate = '';
+  paymentMethodFilter = '';
   expandedSales: { [key: number]: boolean } = {};
   message: string | null = null;
   messageType: 'success' | 'error' | null = null;
@@ -30,7 +33,8 @@ export class SaleHistoryComponent implements OnInit {
   constructor(
     private saleService: SaleService,
     private customerService: CustomerService,
-    private productService: ProductService
+    private productService: ProductService,
+    private dateFormatter: DateFormatterService
   ) {}
 
   ngOnInit(): void {
@@ -85,6 +89,7 @@ export class SaleHistoryComponent implements OnInit {
           const dateB = new Date(b.date || b.createdAt || b.saleDate || 0).getTime();
           return dateB - dateA;
         });
+        this.filteredSales = this.sales;
         this.currentPage = 1;
         this.loading = false;
       },
@@ -96,35 +101,54 @@ export class SaleHistoryComponent implements OnInit {
   }
 
   applyFilters(): void {
-    if (!this.startDate || !this.endDate) {
-      this.loadSales();
-      return;
+    // Filtro por rango de fechas
+    let filtered = this.sales;
+
+    if (this.startDate || this.endDate) {
+      this.loading = true;
+      const start = this.startDate ? this.toIso8601(this.startDate) : '';
+      const end = this.endDate ? this.toIso8601(this.endDate) : '';
+
+      this.saleService.getByDateRange(start, end).subscribe({
+        next: (data) => {
+          filtered = data.sort((a, b) => {
+            const dateA = new Date(a.date || a.createdAt || a.saleDate || 0).getTime();
+            const dateB = new Date(b.date || b.createdAt || b.saleDate || 0).getTime();
+            return dateB - dateA;
+          });
+          // Aplicar filtro de método de pago después del filtro de fecha
+          this.applyPaymentMethodFilter(filtered);
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+          this.showMessage('No fue posible filtrar el historial', 'error');
+        }
+      });
+    } else {
+      // Aplicar solo filtro de método de pago
+      this.applyPaymentMethodFilter(filtered);
     }
+  }
 
-    this.loading = true;
-    const start = this.toIso8601(this.startDate);
-    const end = this.toIso8601(this.endDate);
-
-    this.saleService.getByDateRange(start, end).subscribe({
-      next: (data) => {
-        this.sales = data.sort((a, b) => {
-          const dateA = new Date(a.date || a.createdAt || a.saleDate || 0).getTime();
-          const dateB = new Date(b.date || b.createdAt || b.saleDate || 0).getTime();
-          return dateB - dateA;
-        });
-        this.currentPage = 1;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.showMessage('No fue posible filtrar el historial', 'error');
-      }
-    });
+  private applyPaymentMethodFilter(data: Sale[]): void {
+    if (!this.paymentMethodFilter.trim()) {
+      this.filteredSales = data;
+    } else {
+      const method = this.paymentMethodFilter.trim().toLowerCase();
+      this.filteredSales = data.filter((sale) =>
+        sale.paymentMethodNames?.some((pm) =>
+          pm.toLowerCase().includes(method)
+        )
+      );
+    }
+    this.currentPage = 1;
   }
 
   clearFilters(): void {
     this.startDate = '';
     this.endDate = '';
+    this.paymentMethodFilter = '';
     this.loadSales();
   }
 
@@ -157,12 +181,7 @@ export class SaleHistoryComponent implements OnInit {
       return 'Sin fecha';
     }
 
-    const date = new Date(raw);
-    if (isNaN(date.getTime())) {
-      return raw;
-    }
-
-    return date.toLocaleString('es-CO');
+    return this.dateFormatter.formatDate(raw, 'datetime');
   }
 
   formatPrice(value?: number): string {
@@ -192,11 +211,11 @@ export class SaleHistoryComponent implements OnInit {
   // Paginación
   get paginatedSales(): Sale[] {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.sales.slice(start, start + this.pageSize);
+    return this.filteredSales.slice(start, start + this.pageSize);
   }
 
   get totalPages(): number {
-    return Math.ceil(this.sales.length / this.pageSize);
+    return Math.ceil(this.filteredSales.length / this.pageSize);
   }
 
   goToPage(page: number): void {

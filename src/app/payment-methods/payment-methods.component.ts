@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PaymentMethod } from '../models/payment-method.models';
 import { PaymentMethodService } from '../services/payment-method.service';
+import { DateFormatterService } from '../services/date-formatter.service';
 
 @Component({
   selector: 'app-payment-methods',
@@ -17,13 +18,16 @@ export class PaymentMethodsComponent implements OnInit {
   showForm = false;
   editingId: number | null = null;
   searchQuery = '';
+  startDate = '';
+  endDate = '';
   message: string | null = null;
   messageType: 'success' | 'error' | null = null;
   errors: { [key: string]: string } = {};
 
   constructor(
     private fb: FormBuilder,
-    private paymentMethodService: PaymentMethodService
+    private paymentMethodService: PaymentMethodService,
+    private dateFormatter: DateFormatterService
   ) {
     this.paymentMethodForm = this.fb.group({
       name: ['', [Validators.required]]
@@ -50,15 +54,51 @@ export class PaymentMethodsComponent implements OnInit {
   }
 
   searchPaymentMethods(): void {
-    const query = this.searchQuery.trim().toLowerCase();
-    if (!query) {
-      this.filteredPaymentMethods = this.paymentMethods;
-      return;
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
+    let filtered = this.paymentMethods;
+
+    // Filtro de búsqueda por nombre
+    if (this.searchQuery.trim()) {
+      const query = this.searchQuery.trim().toLowerCase();
+      filtered = filtered.filter((item) =>
+        item.name.toLowerCase().includes(query)
+      );
     }
 
-    this.filteredPaymentMethods = this.paymentMethods.filter((item) =>
-      item.name.toLowerCase().includes(query)
-    );
+    // Filtro de rango de fechas
+    if (this.startDate || this.endDate) {
+      filtered = filtered.filter((item) => {
+        const itemDate = this.dateFormatter.getColombiaDay(
+          (item as any).createdAt || (item as any).date || new Date()
+        );
+        const start = this.startDate ? this.startDate.split('T')[0] : '';
+        const end = this.endDate ? this.endDate.split('T')[0] : '';
+
+        if (start && itemDate < start) return false;
+        if (end && itemDate > end) return false;
+        return true;
+      });
+    }
+
+    this.filteredPaymentMethods = filtered;
+  }
+
+  clearFilters(): void {
+    this.searchQuery = '';
+    this.startDate = '';
+    this.endDate = '';
+    this.filteredPaymentMethods = this.paymentMethods;
+  }
+
+  getFormattedDate(paymentMethod: PaymentMethod): string {
+    const dateValue = (paymentMethod as any).createdAt || (paymentMethod as any).date;
+    if (!dateValue) {
+      return 'Sin fecha';
+    }
+    return this.dateFormatter.formatDate(dateValue, 'datetime');
   }
 
   showNewForm(): void {

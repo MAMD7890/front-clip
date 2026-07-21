@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CashRegisterDto, MovementType } from '../models/cash-register.models';
 import { CashRegisterService } from '../services/cash-register.service';
+import { DateFormatterService } from '../services/date-formatter.service';
 
 @Component({
   selector: 'app-cash-register-history',
@@ -11,10 +12,14 @@ export class CashRegisterHistoryComponent implements OnInit {
   cajas: CashRegisterDto[] = [];
   loading = true;
   expandedCajas: { [key: number]: boolean } = {};
+  downloadingCajas: { [key: number]: boolean } = {};
   message: string | null = null;
   messageType: 'success' | 'error' | null = null;
 
-  constructor(private cashService: CashRegisterService) {}
+  constructor(
+    private cashService: CashRegisterService,
+    private dateFormatter: DateFormatterService
+  ) {}
 
   ngOnInit(): void {
     this.loadHistory();
@@ -78,16 +83,36 @@ export class CashRegisterHistoryComponent implements OnInit {
 
   formatDate(dateStr: string | null): string {
     if (!dateStr) return '—';
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleString('es-CO');
+    return this.dateFormatter.formatDate(dateStr, 'datetime');
   }
 
   formatTime(dateStr: string | null | undefined): string {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '';
-    return d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    return this.dateFormatter.formatDate(dateStr, 'time');
+  }
+
+  downloadReport(cajaId: number): void {
+    if (!cajaId) return;
+    
+    this.downloadingCajas[cajaId] = true;
+    this.cashService.downloadCloseReport(cajaId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cierre-caja-' + cajaId + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.downloadingCajas[cajaId] = false;
+        this.showMessage('PDF descargado correctamente', 'success');
+      },
+      error: () => {
+        this.downloadingCajas[cajaId] = false;
+        this.showMessage('Error al descargar el PDF', 'error');
+      }
+    });
   }
 
   private showMessage(message: string, type: 'success' | 'error'): void {

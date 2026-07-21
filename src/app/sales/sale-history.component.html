@@ -9,14 +9,24 @@
   <div class="filters-card">
     <div class="filter-group">
       <label for="startDate">Desde</label>
-      <input id="startDate" type="datetime-local" [(ngModel)]="startDate" class="form-control" />
+      <input id="startDate" type="datetime-local" [(ngModel)]="startDate" (change)="applyFilters()" class="form-control" />
     </div>
     <div class="filter-group">
       <label for="endDate">Hasta</label>
-      <input id="endDate" type="datetime-local" [(ngModel)]="endDate" class="form-control" />
+      <input id="endDate" type="datetime-local" [(ngModel)]="endDate" (change)="applyFilters()" class="form-control" />
+    </div>
+    <div class="filter-group">
+      <label for="paymentMethod">Método de Pago</label>
+      <input 
+        id="paymentMethod" 
+        type="text" 
+        [(ngModel)]="paymentMethodFilter" 
+        (input)="applyFilters()" 
+        class="form-control"
+        placeholder="Ej: efectivo, tarjeta..."
+      />
     </div>
     <div class="filter-actions">
-      <button class="btn btn-primary" (click)="applyFilters()">Filtrar</button>
       <button class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
     </div>
   </div>
@@ -27,7 +37,7 @@
   </div>
 
   <div class="table-wrapper" *ngIf="!loading">
-    <table class="table" *ngIf="sales.length > 0; else noData">
+    <table class="table" *ngIf="filteredSales.length > 0; else noData">
       <thead>
         <tr>
           <th>ID</th>
