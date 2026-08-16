@@ -42,8 +42,7 @@ export class SaleService {
     start?: string,
     end?: string,
     paymentMethod?: string,
-    minTotal?: number,
-    maxTotal?: number
+    total?: number
   ): Observable<PageResponse<Sale>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (start) {
@@ -55,11 +54,8 @@ export class SaleService {
     if (paymentMethod) {
       params = params.set('paymentMethod', paymentMethod);
     }
-    if (minTotal != null) {
-      params = params.set('minTotal', minTotal);
-    }
-    if (maxTotal != null) {
-      params = params.set('maxTotal', maxTotal);
+    if (total != null) {
+      params = params.set('total', total);
     }
     return this.http.get<PageResponse<Sale>>(this.baseUrl, { params });
   }

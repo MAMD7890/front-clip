@@ -21,8 +21,7 @@ export class SaleHistoryComponent implements OnInit {
   startDate = '';
   endDate = '';
   paymentMethodFilter = '';
-  minTotalFilter: number | null = null;
-  maxTotalFilter: number | null = null;
+  totalFilter: number | null = null;
   expandedSales: { [key: number]: boolean } = {};
   message: string | null = null;
   messageType: 'success' | 'error' | null = null;
@@ -91,10 +90,9 @@ export class SaleHistoryComponent implements OnInit {
     const start = this.startDate ? this.toIso8601(this.startDate) : undefined;
     const end = this.endDate ? this.toIso8601(this.endDate) : undefined;
     const paymentMethod = this.paymentMethodFilter.trim() || undefined;
-    const minTotal = this.minTotalFilter != null ? this.minTotalFilter : undefined;
-    const maxTotal = this.maxTotalFilter != null ? this.maxTotalFilter : undefined;
+    const total = this.totalFilter != null ? this.totalFilter : undefined;
 
-    this.saleService.search(this.currentPage - 1, this.pageSize, start, end, paymentMethod, minTotal, maxTotal).subscribe({
+    this.saleService.search(this.currentPage - 1, this.pageSize, start, end, paymentMethod, total).subscribe({
       next: (page) => {
         this.sales = page.content;
         this.totalPages = page.totalPages;
@@ -126,8 +124,7 @@ export class SaleHistoryComponent implements OnInit {
     this.startDate = '';
     this.endDate = '';
     this.paymentMethodFilter = '';
-    this.minTotalFilter = null;
-    this.maxTotalFilter = null;
+    this.totalFilter = null;
     this.currentPage = 1;
     this.loadSales();
   }

@@ -27,27 +27,15 @@
       />
     </div>
     <div class="filter-group">
-      <label for="minTotal">Total mínimo</label>
+      <label for="total">Total</label>
       <input
-        id="minTotal"
+        id="total"
         type="number"
         min="0"
-        [(ngModel)]="minTotalFilter"
+        [(ngModel)]="totalFilter"
         (input)="onFilterInput()"
         class="form-control"
-        placeholder="Ej: 1000"
-      />
-    </div>
-    <div class="filter-group">
-      <label for="maxTotal">Total máximo</label>
-      <input
-        id="maxTotal"
-        type="number"
-        min="0"
-        [(ngModel)]="maxTotalFilter"
-        (input)="onFilterInput()"
-        class="form-control"
-        placeholder="Ej: 50000"
+        placeholder="Ej: 5000"
       />
     </div>
     <div class="filter-actions">
