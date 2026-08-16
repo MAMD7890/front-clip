@@ -14,7 +14,6 @@ import { DateFormatterService } from '../services/date-formatter.service';
 })
 export class SaleHistoryComponent implements OnInit {
   sales: Sale[] = [];
-  filteredSales: Sale[] = [];
   customersById: { [key: number]: Customer } = {};
   productsById: { [key: number]: ProductResponse } = {};
   loading = false;
@@ -22,13 +21,19 @@ export class SaleHistoryComponent implements OnInit {
   startDate = '';
   endDate = '';
   paymentMethodFilter = '';
+  minTotalFilter: number | null = null;
+  maxTotalFilter: number | null = null;
   expandedSales: { [key: number]: boolean } = {};
   message: string | null = null;
   messageType: 'success' | 'error' | null = null;
 
-  // Paginación
+  // Paginación (server-side)
   currentPage = 1;
   pageSize = 20;
+  totalPages = 0;
+  totalElements = 0;
+
+  private filterDebounce: any = null;
 
   constructor(
     private saleService: SaleService,
@@ -80,17 +85,20 @@ export class SaleHistoryComponent implements OnInit {
     return product ? product.name : 'Producto #' + productId;
   }
 
+  /** Trae la página actual desde el servidor, aplicando los filtros vigentes. */
   loadSales(): void {
     this.loading = true;
-    this.saleService.getAll().subscribe({
-      next: (data) => {
-        this.sales = data.sort((a, b) => {
-          const dateA = new Date(a.date || a.createdAt || a.saleDate || 0).getTime();
-          const dateB = new Date(b.date || b.createdAt || b.saleDate || 0).getTime();
-          return dateB - dateA;
-        });
-        this.filteredSales = this.sales;
-        this.currentPage = 1;
+    const start = this.startDate ? this.toIso8601(this.startDate) : undefined;
+    const end = this.endDate ? this.toIso8601(this.endDate) : undefined;
+    const paymentMethod = this.paymentMethodFilter.trim() || undefined;
+    const minTotal = this.minTotalFilter != null ? this.minTotalFilter : undefined;
+    const maxTotal = this.maxTotalFilter != null ? this.maxTotalFilter : undefined;
+
+    this.saleService.search(this.currentPage - 1, this.pageSize, start, end, paymentMethod, minTotal, maxTotal).subscribe({
+      next: (page) => {
+        this.sales = page.content;
+        this.totalPages = page.totalPages;
+        this.totalElements = page.totalElements;
         this.loading = false;
       },
       error: () => {
@@ -100,55 +108,27 @@ export class SaleHistoryComponent implements OnInit {
     });
   }
 
+  /** Cambios de fecha: recargan de inmediato desde la página 1. */
   applyFilters(): void {
-    // Filtro por rango de fechas
-    let filtered = this.sales;
-
-    if (this.startDate || this.endDate) {
-      this.loading = true;
-      const start = this.startDate ? this.toIso8601(this.startDate) : '';
-      const end = this.endDate ? this.toIso8601(this.endDate) : '';
-
-      this.saleService.getByDateRange(start, end).subscribe({
-        next: (data) => {
-          filtered = data.sort((a, b) => {
-            const dateA = new Date(a.date || a.createdAt || a.saleDate || 0).getTime();
-            const dateB = new Date(b.date || b.createdAt || b.saleDate || 0).getTime();
-            return dateB - dateA;
-          });
-          // Aplicar filtro de método de pago después del filtro de fecha
-          this.applyPaymentMethodFilter(filtered);
-          this.loading = false;
-        },
-        error: () => {
-          this.loading = false;
-          this.showMessage('No fue posible filtrar el historial', 'error');
-        }
-      });
-    } else {
-      // Aplicar solo filtro de método de pago
-      this.applyPaymentMethodFilter(filtered);
-    }
+    this.currentPage = 1;
+    this.loadSales();
   }
 
-  private applyPaymentMethodFilter(data: Sale[]): void {
-    if (!this.paymentMethodFilter.trim()) {
-      this.filteredSales = data;
-    } else {
-      const method = this.paymentMethodFilter.trim().toLowerCase();
-      this.filteredSales = data.filter((sale) =>
-        sale.paymentMethodNames?.some((pm) =>
-          pm.toLowerCase().includes(method)
-        )
-      );
+  /** Los filtros de texto/número se debouncen para no disparar una petición por cada tecla. */
+  onFilterInput(): void {
+    if (this.filterDebounce) {
+      clearTimeout(this.filterDebounce);
     }
-    this.currentPage = 1;
+    this.filterDebounce = setTimeout(() => this.applyFilters(), 400);
   }
 
   clearFilters(): void {
     this.startDate = '';
     this.endDate = '';
     this.paymentMethodFilter = '';
+    this.minTotalFilter = null;
+    this.maxTotalFilter = null;
+    this.currentPage = 1;
     this.loadSales();
   }
 
@@ -209,22 +189,31 @@ export class SaleHistoryComponent implements OnInit {
   }
 
   // Paginación
-  get paginatedSales(): Sale[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.filteredSales.slice(start, start + this.pageSize);
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.filteredSales.length / this.pageSize);
-  }
-
   goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.currentPage = page;
+      this.loadSales();
     }
   }
 
+  /** Ventana de páginas alrededor de la actual, para no listar cientos de botones. */
   get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    const maxPagesToShow = 3;
+    const start = Math.max(1, this.currentPage - 1);
+    const end = Math.min(this.totalPages, this.currentPage + 1);
+    const pages: number[] = [];
+    for (let i = start; i <= end && pages.length < maxPagesToShow; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  get visibleRange(): string {
+    if (this.totalElements === 0) {
+      return '0';
+    }
+    const start = (this.currentPage - 1) * this.pageSize + 1;
+    const end = Math.min(this.currentPage * this.pageSize, this.totalElements);
+    return `${start} - ${end} de ${this.totalElements}`;
   }
 }

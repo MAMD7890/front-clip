@@ -17,13 +17,37 @@
     </div>
     <div class="filter-group">
       <label for="paymentMethod">Método de Pago</label>
-      <input 
-        id="paymentMethod" 
-        type="text" 
-        [(ngModel)]="paymentMethodFilter" 
-        (input)="applyFilters()" 
+      <input
+        id="paymentMethod"
+        type="text"
+        [(ngModel)]="paymentMethodFilter"
+        (input)="onFilterInput()"
         class="form-control"
         placeholder="Ej: efectivo, tarjeta..."
+      />
+    </div>
+    <div class="filter-group">
+      <label for="minTotal">Total mínimo</label>
+      <input
+        id="minTotal"
+        type="number"
+        min="0"
+        [(ngModel)]="minTotalFilter"
+        (input)="onFilterInput()"
+        class="form-control"
+        placeholder="Ej: 1000"
+      />
+    </div>
+    <div class="filter-group">
+      <label for="maxTotal">Total máximo</label>
+      <input
+        id="maxTotal"
+        type="number"
+        min="0"
+        [(ngModel)]="maxTotalFilter"
+        (input)="onFilterInput()"
+        class="form-control"
+        placeholder="Ej: 50000"
       />
     </div>
     <div class="filter-actions">
@@ -37,7 +61,7 @@
   </div>
 
   <div class="table-wrapper" *ngIf="!loading">
-    <table class="table" *ngIf="filteredSales.length > 0; else noData">
+    <table class="table" *ngIf="sales.length > 0; else noData">
       <thead>
         <tr>
           <th>ID</th>
@@ -49,7 +73,7 @@
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngFor="let sale of paginatedSales">
+        <ng-container *ngFor="let sale of sales">
           <tr>
             <td>#{{ sale.id }}</td>
             <td>{{ getCustomerName(sale.customerId) }}</td>
@@ -96,10 +120,15 @@
     </table>
 
     <!-- Paginación -->
+    <div class="pagination-info" *ngIf="totalElements > 0">
+      Mostrando {{ visibleRange }} ventas
+    </div>
     <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">&laquo;&laquo;</button>
       <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">&laquo; Anterior</button>
       <button *ngFor="let page of pages" class="page-btn" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
       <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Siguiente &raquo;</button>
+      <button class="page-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">&raquo;&raquo;</button>
     </div>
 
     <ng-template #noData>

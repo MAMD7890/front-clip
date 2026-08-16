@@ -4,6 +4,14 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Sale } from '../models/sale.models';
 
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,12 +24,43 @@ export class SaleService {
     return this.http.post<Sale>(this.baseUrl, sale);
   }
 
+  /** Lista completa sin paginar. Solo para reportes/exportación. */
   getAll(): Observable<Sale[]> {
-    return this.http.get<Sale[]>(this.baseUrl);
+    return this.http.get<Sale[]>(`${this.baseUrl}/export`);
   }
 
+  /** Lista completa sin paginar filtrada por fecha. Solo para reportes/exportación. */
   getByDateRange(start: string, end: string): Observable<Sale[]> {
     const params = new HttpParams().set('start', start).set('end', end);
-    return this.http.get<Sale[]>(this.baseUrl, { params });
+    return this.http.get<Sale[]>(`${this.baseUrl}/export`, { params });
+  }
+
+  /** Búsqueda paginada (server-side) para listados en pantalla, p.ej. Historial de Ventas. */
+  search(
+    page: number,
+    size: number,
+    start?: string,
+    end?: string,
+    paymentMethod?: string,
+    minTotal?: number,
+    maxTotal?: number
+  ): Observable<PageResponse<Sale>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (start) {
+      params = params.set('start', start);
+    }
+    if (end) {
+      params = params.set('end', end);
+    }
+    if (paymentMethod) {
+      params = params.set('paymentMethod', paymentMethod);
+    }
+    if (minTotal != null) {
+      params = params.set('minTotal', minTotal);
+    }
+    if (maxTotal != null) {
+      params = params.set('maxTotal', maxTotal);
+    }
+    return this.http.get<PageResponse<Sale>>(this.baseUrl, { params });
   }
 }

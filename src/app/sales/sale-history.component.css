@@ -202,12 +202,19 @@
   }
 }
 
+.pagination-info {
+  text-align: center;
+  color: #888;
+  font-size: 13px;
+  margin-top: 14px;
+}
+
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 6px;
-  margin-top: 20px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
