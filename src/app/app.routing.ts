@@ -19,6 +19,8 @@ import { ReportsComponent } from './reports/reports.component';
 import { UsersComponent } from './users/users.component';
 import { ExternalInvoicesComponent } from './external-invoices/external-invoices.component';
 import { ExpensesComponent } from './expenses/expenses.component';
+import { WorkersComponent } from './workers/workers.component';
+import { WorkerDetailComponent } from './workers/worker-detail.component';
 import { AuthGuard } from './services/auth.guard';
 
 const routes: Routes =[
@@ -37,6 +39,8 @@ const routes: Routes =[
       { path: 'caja', component: CashRegisterComponent },
       { path: 'caja/historial', component: CashRegisterHistoryComponent },
       { path: 'gastos', component: ExpensesComponent },
+      { path: 'trabajadores', component: WorkersComponent },
+      { path: 'trabajadores/:id', component: WorkerDetailComponent },
       { path: 'customers', component: CustomersComponent },
       { path: 'credits', component: CreditsComponent },
       { path: 'reports', component: ReportsComponent },

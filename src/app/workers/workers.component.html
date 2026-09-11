@@ -1,0 +1,108 @@
+<div class="workers-container">
+  <div class="section-header">
+    <h1><i class="now-ui-icons users_circle-08 section-icon"></i> Trabajadores</h1>
+    <p>Gestiona tus trabajadores y lleva el registro de sus pagos y adelantos</p>
+  </div>
+
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">{{ message }}</div>
+
+  <div class="summary-grid" *ngIf="!loading">
+    <div class="summary-card">
+      <span class="card-label">Total Pagado (todos)</span>
+      <span class="card-value">{{ formatPrice(totalPaidAll) }}</span>
+    </div>
+    <div class="summary-card advance">
+      <span class="card-label">Total Adelantado (todos)</span>
+      <span class="card-value">{{ formatPrice(totalAdvancesAll) }}</span>
+    </div>
+    <div class="summary-card">
+      <span class="card-label">Trabajadores</span>
+      <span class="card-value">{{ workers.length }}</span>
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <button class="btn btn-primary" (click)="showNewForm()">
+      <i class="now-ui-icons ui-1_simple-add"></i> Nuevo Trabajador
+    </button>
+  </div>
+
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando trabajadores...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading">
+    <table class="table" *ngIf="workers.length > 0; else noData">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Documento</th>
+          <th>Teléfono</th>
+          <th>Total Pagado</th>
+          <th>Total Adelantado</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let worker of workers" [class.inactive-row]="!worker.active">
+          <td>{{ worker.name }}</td>
+          <td>{{ worker.document || '—' }}</td>
+          <td>{{ worker.phone || '—' }}</td>
+          <td class="positive-cell">{{ formatPrice(worker.totalPaid) }}</td>
+          <td class="advance-cell">{{ formatPrice(worker.totalAdvances) }}</td>
+          <td>
+            <span class="badge" [ngClass]="worker.active ? 'badge-active' : 'badge-inactive'">
+              {{ worker.active ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <a class="btn-link" [routerLink]="['/trabajadores', worker.id]">Ver detalle</a>
+            <button class="btn-link" (click)="editWorker(worker)">Editar</button>
+            <button class="btn-link" (click)="toggleActive(worker)">{{ worker.active ? 'Desactivar' : 'Activar' }}</button>
+            <button class="btn-link danger" (click)="deleteWorker(worker)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noData>
+      <div class="empty-state">
+        <i class="now-ui-icons users_circle-08 empty-icon"></i>
+        <h3>No hay trabajadores registrados</h3>
+        <p>Crea el primero con el botón "Nuevo Trabajador"</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Modal crear/editar -->
+  <div class="modal-overlay" *ngIf="showForm">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>{{ editingId ? 'Editar Trabajador' : 'Nuevo Trabajador' }}</h3>
+        <button class="btn-close" (click)="cancelForm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="formName">Nombre *</label>
+          <input id="formName" type="text" [(ngModel)]="formName" class="form-control" placeholder="Ej: Juan Pérez" />
+        </div>
+        <div class="form-group">
+          <label for="formDocument">Documento</label>
+          <input id="formDocument" type="text" [(ngModel)]="formDocument" class="form-control" placeholder="Ej: 1082836864" />
+        </div>
+        <div class="form-group">
+          <label for="formPhone">Teléfono</label>
+          <input id="formPhone" type="text" [(ngModel)]="formPhone" class="form-control" placeholder="Ej: 3123303466" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelForm()">Cancelar</button>
+        <button class="btn btn-primary" [disabled]="submitting" (click)="submitForm()">
+          {{ submitting ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

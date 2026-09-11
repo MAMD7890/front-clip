@@ -1,0 +1,140 @@
+<div class="workers-container" *ngIf="worker">
+  <div class="section-header">
+    <a class="back-link" [routerLink]="['/trabajadores']">&laquo; Volver a Trabajadores</a>
+    <h1><i class="now-ui-icons users_circle-08 section-icon"></i> {{ worker.name }}</h1>
+    <p>
+      {{ worker.document || 'Sin documento' }} · {{ worker.phone || 'Sin teléfono' }} ·
+      <span class="badge" [ngClass]="worker.active ? 'badge-active' : 'badge-inactive'">
+        {{ worker.active ? 'Activo' : 'Inactivo' }}
+      </span>
+    </p>
+  </div>
+
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">{{ message }}</div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <span class="card-label">Total Pagado</span>
+      <span class="card-value">{{ formatPrice(worker.totalPaid) }}</span>
+    </div>
+    <div class="summary-card advance">
+      <span class="card-label">Total Adelantado</span>
+      <span class="card-value">{{ formatPrice(worker.totalAdvances) }}</span>
+    </div>
+    <div class="summary-card total">
+      <span class="card-label">Total General</span>
+      <span class="card-value">{{ formatPrice((worker.totalPaid || 0) + (worker.totalAdvances || 0)) }}</span>
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <button class="btn btn-primary" (click)="openPaymentForm('PAYMENT')">
+      <i class="now-ui-icons ui-1_simple-add"></i> Registrar Pago
+    </button>
+    <button class="btn btn-secondary" (click)="openPaymentForm('ADVANCE')">
+      <i class="now-ui-icons ui-1_simple-add"></i> Registrar Adelanto
+    </button>
+  </div>
+
+  <div class="filters-card">
+    <div class="filter-group">
+      <label for="startDate">Desde</label>
+      <input id="startDate" type="datetime-local" [(ngModel)]="startDate" (change)="applyFilters()" class="form-control" />
+    </div>
+    <div class="filter-group">
+      <label for="endDate">Hasta</label>
+      <input id="endDate" type="datetime-local" [(ngModel)]="endDate" (change)="applyFilters()" class="form-control" />
+    </div>
+    <div class="filter-group">
+      <label for="typeFilter">Tipo</label>
+      <select id="typeFilter" class="form-control" [(ngModel)]="typeFilter" (change)="applyFilters()">
+        <option value="ALL">Todos</option>
+        <option value="PAYMENT">Pago</option>
+        <option value="ADVANCE">Adelanto</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando pagos...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading">
+    <table class="table" *ngIf="payments.length > 0; else noData">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th>Monto</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let payment of payments">
+          <td>{{ formatDate(payment.date) }}</td>
+          <td>
+            <span class="badge" [ngClass]="payment.type === 'PAYMENT' ? 'badge-payment' : 'badge-advance'">
+              {{ getTypeLabel(payment.type) }}
+            </span>
+          </td>
+          <td>{{ payment.description || '—' }}</td>
+          <td [ngClass]="payment.type === 'PAYMENT' ? 'positive-cell' : 'advance-cell'">{{ formatPrice(payment.amount) }}</td>
+          <td>
+            <button class="btn-link danger" (click)="deletePayment(payment)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="pagination-info" *ngIf="totalElements > 0">
+      Mostrando {{ visibleRange }} registros
+    </div>
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">&laquo;&laquo;</button>
+      <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">&laquo; Anterior</button>
+      <button *ngFor="let page of pages" class="page-btn" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
+      <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Siguiente &raquo;</button>
+      <button class="page-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">&raquo;&raquo;</button>
+    </div>
+
+    <ng-template #noData>
+      <div class="empty-state">
+        <i class="now-ui-icons files_box empty-icon"></i>
+        <h3>No hay pagos registrados</h3>
+        <p>Registra un pago o adelanto con los botones de arriba</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Modal registrar pago/adelanto -->
+  <div class="modal-overlay" *ngIf="showPaymentForm">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>{{ paymentType === 'PAYMENT' ? 'Registrar Pago' : 'Registrar Adelanto' }}</h3>
+        <button class="btn-close" (click)="cancelPaymentForm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="paymentAmount">Monto *</label>
+          <input id="paymentAmount" type="number" min="0" [(ngModel)]="paymentAmount" class="form-control" placeholder="Ej: 100000" />
+        </div>
+        <div class="form-group">
+          <label for="paymentDescription">Descripción (opcional)</label>
+          <input id="paymentDescription" type="text" [(ngModel)]="paymentDescription" class="form-control" placeholder="Ej: Pago semana del 8 al 14" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelPaymentForm()">Cancelar</button>
+        <button class="btn btn-primary" [disabled]="submitting" (click)="submitPayment()">
+          {{ submitting ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

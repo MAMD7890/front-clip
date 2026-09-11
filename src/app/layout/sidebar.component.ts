@@ -32,6 +32,7 @@ export class SidebarComponent implements OnInit {
     { iconClass: 'business_money-coins', label: 'Caja', route: '/caja', moduleKey: 'cash-register' },
     { iconClass: 'files_paper', label: 'Historial de Caja', route: '/caja/historial', moduleKey: 'cash-register-history' },
     { iconClass: 'business_money-coins', label: 'Gastos', route: '/gastos', moduleKey: 'expenses' },
+    { iconClass: 'users_circle-08', label: 'Trabajadores', route: '/trabajadores', moduleKey: 'workers' },
     { iconClass: 'business_chart-bar-32', label: 'Reportes', route: '/reports', moduleKey: 'reports' },
     { iconClass: 'business_badge', label: 'Usuarios', route: '/users', moduleKey: 'users' },
     { iconClass: 'files_single-copy-04', label: 'Fact. Externa', route: '/external-invoices', moduleKey: 'external-invoices' }
