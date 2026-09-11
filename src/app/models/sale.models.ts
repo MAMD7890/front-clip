@@ -18,4 +18,6 @@ export interface Sale {
   credit?: boolean;
   creditNotes?: string;
   receiptBase64?: string;
+  cancelled?: boolean;
+  cancelledDate?: string;
 }

@@ -152,6 +152,34 @@
   text-transform: capitalize;
 }
 
+.badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-cancelled {
+  background: #fde8e8;
+  color: #d63333;
+}
+
+.cancelled-row {
+  opacity: 0.6;
+}
+
+.icon-btn.danger {
+  color: #d63333;
+}
+
+.icon-btn.danger:hover:not(:disabled) {
+  background: #fde8e8;
+  color: #d63333;
+}
+
 .pm-empty {
   color: #aaa;
   font-size: 13px;

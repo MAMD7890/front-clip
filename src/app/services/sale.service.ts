@@ -64,4 +64,9 @@ export class SaleService {
   getReceiptBytes(saleId: number): Observable<ArrayBuffer> {
     return this.http.get(`${this.baseUrl}/${saleId}/receipt`, { responseType: 'arraybuffer' });
   }
+
+  /** Cancela una venta (restaura stock, cancela su crédito o quita su movimiento de caja). Solo admins. */
+  cancel(saleId: number): Observable<Sale> {
+    return this.http.put<Sale>(`${this.baseUrl}/${saleId}/cancel`, {});
+  }
 }

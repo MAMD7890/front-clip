@@ -7,6 +7,7 @@ import { ProductService } from '../services/product.service';
 import { SaleService } from '../services/sale.service';
 import { DateFormatterService } from '../services/date-formatter.service';
 import { PrinterService } from '../services/printer.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-sale-history',
@@ -35,14 +36,20 @@ export class SaleHistoryComponent implements OnInit {
 
   private filterDebounce: any = null;
   printingSaleId: number | null = null;
+  cancellingSaleId: number | null = null;
 
   constructor(
     private saleService: SaleService,
     private customerService: CustomerService,
     private productService: ProductService,
     private dateFormatter: DateFormatterService,
-    private printerService: PrinterService
+    private printerService: PrinterService,
+    private authService: AuthService
   ) {}
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
 
   ngOnInit(): void {
     this.loadCustomers();
@@ -160,6 +167,30 @@ export class SaleHistoryComponent implements OnInit {
       error: () => {
         this.printingSaleId = null;
         this.showMessage('No fue posible obtener el recibo de la venta #' + saleId, 'error');
+      }
+    });
+  }
+
+  cancelSale(sale: Sale): void {
+    if (!sale.id || this.cancellingSaleId) {
+      return;
+    }
+    if (!confirm(`¿Seguro que deseas cancelar la venta #${sale.id}? Esto restaura el stock y quita el movimiento de caja/crédito asociado.`)) {
+      return;
+    }
+
+    this.cancellingSaleId = sale.id;
+    this.saleService.cancel(sale.id).subscribe({
+      next: (updated) => {
+        this.cancellingSaleId = null;
+        sale.cancelled = updated.cancelled;
+        sale.cancelledDate = updated.cancelledDate;
+        this.showMessage('Venta #' + sale.id + ' cancelada correctamente', 'success');
+      },
+      error: (err) => {
+        this.cancellingSaleId = null;
+        const msg = err?.error?.error || err?.error?.message || 'No fue posible cancelar la venta';
+        this.showMessage(msg, 'error');
       }
     });
   }

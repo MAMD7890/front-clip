@@ -57,12 +57,13 @@
           <th>Fecha</th>
           <th>Total</th>
           <th>Metodos de Pago</th>
+          <th>Estado</th>
           <th>Detalle</th>
         </tr>
       </thead>
       <tbody>
         <ng-container *ngFor="let sale of sales">
-          <tr>
+          <tr [class.cancelled-row]="sale.cancelled">
             <td>#{{ sale.id }}</td>
             <td>{{ getCustomerName(sale.customerId) }}</td>
             <td>{{ getSaleDate(sale) }}</td>
@@ -72,6 +73,9 @@
                 <span class="pm-pill" *ngFor="let pm of sale.paymentMethodNames">{{ pm }}</span>
               </span>
               <ng-template #noPm><span class="pm-empty">Sin metodos</span></ng-template>
+            </td>
+            <td>
+              <span class="badge badge-cancelled" *ngIf="sale.cancelled">Cancelada</span>
             </td>
             <td class="actions-cell">
               <button class="icon-btn" (click)="toggleDetails(sale.id)" [title]="isExpanded(sale.id) ? 'Ocultar items' : 'Ver items'">
@@ -85,10 +89,19 @@
               >
                 <i class="now-ui-icons arrows-1_refresh-69"></i>
               </button>
+              <button
+                class="icon-btn danger"
+                *ngIf="isAdmin && !sale.cancelled"
+                [disabled]="cancellingSaleId === sale.id"
+                (click)="cancelSale(sale)"
+                [title]="cancellingSaleId === sale.id ? 'Cancelando…' : 'Cancelar venta'"
+              >
+                <i class="now-ui-icons ui-1_simple-remove"></i>
+              </button>
             </td>
           </tr>
           <tr *ngIf="isExpanded(sale.id)">
-            <td colspan="6" class="details-cell">
+            <td colspan="7" class="details-cell">
               <div class="details-box">
                 <h4>Items de la venta</h4>
                 <table class="detail-table" *ngIf="sale.items?.length; else noItems">
