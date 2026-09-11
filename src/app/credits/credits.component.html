@@ -111,9 +111,9 @@
                   [ngClass]="{ 'row-overdue': credit.status === 'OVERDUE', 'row-paid': credit.status === 'PAID' }">
                 <td data-label="ID">{{ credit.id }}</td>
                 <td data-label="Venta #">{{ credit.saleId }}</td>
-                <td data-label="Total" class="amount">{{ formatCurrency(credit.totalAmount) }}</td>
-                <td data-label="Pagado" class="amount paid-text">{{ formatCurrency(credit.paidAmount) }}</td>
-                <td data-label="Pendiente" class="amount debt-text">{{ formatCurrency(credit.remainingAmount) }}</td>
+                <td data-label="Total"><span class="amount">{{ formatCurrency(credit.totalAmount) }}</span></td>
+                <td data-label="Pagado"><span class="amount paid-text">{{ formatCurrency(credit.paidAmount) }}</span></td>
+                <td data-label="Pendiente"><span class="amount debt-text">{{ formatCurrency(credit.remainingAmount) }}</span></td>
                 <td data-label="Progreso">
                   <div class="progress-bar">
                     <div class="progress-fill" [style.width.%]="getProgressPercent(credit)"
@@ -139,10 +139,6 @@
                 <td data-label="Acciones" class="actions-cell">
                   <button class="btn-action btn-view" (click)="viewCreditDetail(credit)" title="Ver detalle">
                     <i class="now-ui-icons ui-1_zoom-bold"></i>
-                  </button>
-                  <button class="btn-action btn-pay" (click)="openPaymentForm(credit.id!)" title="Registrar abono"
-                    *ngIf="credit.status !== 'PAID' && credit.status !== 'CANCELLED'">
-                    <i class="now-ui-icons business_money-coins"></i>
                   </button>
                   <button class="btn-action btn-cancel-credit" (click)="cancelCredit(credit)" title="Cancelar crédito"
                     *ngIf="credit.status !== 'PAID' && credit.status !== 'CANCELLED'">
@@ -254,8 +250,8 @@
               <tr *ngFor="let payment of selectedCredit.payments; let i = index">
                 <td>{{ i + 1 }}</td>
                 <td>{{ formatDateTime(payment.paymentDate) }}</td>
-                <td class="amount paid-text">{{ formatCurrency(payment.amount) }}</td>
-                <td>{{ payment.paymentMethod }}</td>
+                <td><span class="amount paid-text">{{ formatCurrency(payment.amount) }}</span></td>
+                <td><span class="pm-pill">{{ payment.paymentMethod }}</span></td>
                 <td>{{ payment.notes || '—' }}</td>
               </tr>
             </tbody>
@@ -293,11 +289,7 @@
           <div class="form-group">
             <label for="paymentMethod">Método de Pago *</label>
             <select id="paymentMethod" formControlName="paymentMethod" class="form-control">
-              <option value="EFECTIVO">Efectivo</option>
-              <option value="TRANSFERENCIA">Transferencia</option>
-              <option value="NEQUI">Nequi</option>
-              <option value="DAVIPLATA">Daviplata</option>
-              <option value="TARJETA">Tarjeta</option>
+              <option *ngFor="let pm of paymentMethods" [value]="pm.name">{{ pm.name }}</option>
             </select>
           </div>
         </div>

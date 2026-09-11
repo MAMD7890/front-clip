@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CreditService } from '../services/credit.service';
 import { DateFormatterService } from '../services/date-formatter.service';
+import { PaymentMethodService } from '../services/payment-method.service';
 import { Credit, CreditPayment, CustomerCredits } from '../models/credit.models';
+import { PaymentMethod } from '../models/payment-method.models';
 
 @Component({
   selector: 'app-credits',
@@ -38,20 +40,31 @@ export class CreditsComponent implements OnInit {
   totalOverdue = 0;
   totalCredits = 0;
 
+  paymentMethods: PaymentMethod[] = [];
+
   constructor(
     private creditService: CreditService,
     private fb: FormBuilder,
-    private dateFormatter: DateFormatterService
+    private dateFormatter: DateFormatterService,
+    private paymentMethodService: PaymentMethodService
   ) {
     this.paymentForm = this.fb.group({
       amount: ['', [Validators.required, Validators.min(1)]],
-      paymentMethod: ['EFECTIVO', Validators.required],
+      paymentMethod: ['', Validators.required],
       notes: ['']
     });
   }
 
   ngOnInit() {
     this.loadCredits();
+    this.loadPaymentMethods();
+  }
+
+  loadPaymentMethods() {
+    this.paymentMethodService.getAll().subscribe({
+      next: (data) => (this.paymentMethods = data),
+      error: () => (this.paymentMethods = [])
+    });
   }
 
   loadCredits() {
@@ -164,7 +177,7 @@ export class CreditsComponent implements OnInit {
   openPaymentForm(creditId: number) {
     this.paymentCreditId = creditId;
     this.showPaymentForm = true;
-    this.paymentForm.reset({ paymentMethod: 'EFECTIVO' });
+    this.paymentForm.reset({ paymentMethod: this.paymentMethods[0]?.name || '' });
   }
 
   cancelPayment() {

@@ -54,13 +54,13 @@
 
 .summary-card {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 18px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-  border: 1px solid #eee;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  border: 1px solid #f0f1f3;
 }
 
 .summary-icon {
@@ -79,19 +79,19 @@
 }
 
 .card-debt .summary-icon {
-  background: #fff3e0;
+  background: #fff4df;
 }
 
 .card-debt .summary-icon .now-ui-icons {
-  color: #f57c00;
+  color: #b8790a;
 }
 
 .card-overdue .summary-icon {
-  background: #ffebee;
+  background: #fde8e8;
 }
 
 .card-overdue .summary-icon .now-ui-icons {
-  color: #c62828;
+  color: #d63333;
 }
 
 .summary-info {
@@ -172,18 +172,19 @@
 
 .search-input {
   width: 100%;
-  padding: 10px 14px 10px 42px;
-  border: 2px solid #e8e8e8;
-  border-radius: 8px;
+  padding: 9px 14px 9px 42px;
+  border: 1.5px solid #eceef1;
+  border-radius: 10px;
   font-size: 14px;
   font-family: 'Roboto', sans-serif;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   background: white;
 }
 
 .search-input:focus {
   outline: none;
   border-color: #fdc830;
+  box-shadow: 0 0 0 3px rgba(253, 200, 48, 0.15);
 }
 
 .toolbar-actions {
@@ -193,19 +194,20 @@
 }
 
 .filter-select {
-  padding: 10px 14px;
-  border: 2px solid #e8e8e8;
-  border-radius: 8px;
+  padding: 9px 12px;
+  border: 1.5px solid #eceef1;
+  border-radius: 10px;
   font-size: 14px;
   font-family: 'Roboto', sans-serif;
   background: white;
   cursor: pointer;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .filter-select:focus {
   outline: none;
   border-color: #fdc830;
+  box-shadow: 0 0 0 3px rgba(253, 200, 48, 0.15);
 }
 
 /* ========================================
@@ -241,10 +243,10 @@
 .customer-group {
   margin-bottom: 24px;
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-  border: 1px solid #eee;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  border: 1px solid #f0f1f3;
 }
 
 .customer-header {
@@ -252,8 +254,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 18px 20px;
-  background: #fafafa;
-  border-bottom: 2px solid #eee;
+  background: #fafbfc;
+  border-bottom: 1px solid #f0f1f3;
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -305,11 +307,11 @@
 }
 
 .total-value.paid {
-  color: #2e7d32;
+  color: #1a9f4c;
 }
 
 .total-value.debt {
-  color: #c62828;
+  color: #d63333;
 }
 
 /* ========================================
@@ -322,23 +324,25 @@
 
 .credits-table {
   width: 100%;
+  min-width: 1100px;
   border-collapse: collapse;
   font-size: 13px;
 }
 
 .credits-table thead {
-  background: #f8f8f8;
+  background: #fafbfc;
 }
 
 .credits-table th {
-  padding: 12px 14px;
+  padding: 14px 16px;
   text-align: left;
-  font-weight: 600;
-  color: #555;
-  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   white-space: nowrap;
+  border-bottom: 1px solid #f0f1f3;
 }
 
 .th-actions {
@@ -346,22 +350,22 @@
 }
 
 .credits-table tbody tr {
-  border-bottom: 1px solid #f0f0f0;
   transition: background-color 0.15s ease;
 }
 
-.credits-table tbody tr:last-child {
-  border-bottom: none;
+.credits-table tbody tr:nth-child(odd) {
+  background-color: #fbfbfc;
 }
 
 .credits-table tbody tr:hover {
-  background-color: #fffdf3;
+  background-color: #fdf8ea;
 }
 
 .credits-table td {
-  padding: 12px 14px;
+  padding: 13px 16px;
   color: #444;
   vertical-align: middle;
+  border-top: 1px solid #f4f5f6;
 }
 
 .row-overdue {
@@ -373,16 +377,34 @@
 }
 
 .amount {
-  font-weight: 600;
+  display: inline-block;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  background: #fff7de;
+  color: #a87f00;
 }
 
 .paid-text {
-  color: #2e7d32;
+  display: inline-block;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  background: #e8f9ea;
+  color: #1a9f4c;
 }
 
 .debt-text {
-  color: #c62828;
+  display: inline-block;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  background: #fde8e8;
+  color: #d63333;
 }
 
 /* ========================================
@@ -412,11 +434,11 @@
 }
 
 .progress-fill.progress-complete {
-  background: linear-gradient(90deg, #4caf50, #2e7d32);
+  background: linear-gradient(90deg, #18ce0f, #129c0c);
 }
 
 .progress-fill.progress-overdue {
-  background: linear-gradient(90deg, #ef5350, #c62828);
+  background: linear-gradient(90deg, #FF3636, #d62c2c);
 }
 
 .progress-text {
@@ -440,37 +462,37 @@
 
 .status-badge {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .status-pending {
-  background: #fff3e0;
-  color: #e65100;
+  background: #fff4df;
+  color: #b8790a;
 }
 
 .status-partial {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #eaf4ff;
+  color: #1668c1;
 }
 
 .status-paid {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: #e8f9ea;
+  color: #1a9f4c;
 }
 
 .status-overdue {
-  background: #ffebee;
-  color: #c62828;
+  background: #fde8e8;
+  color: #d63333;
 }
 
 .status-cancelled {
-  background: #f5f5f5;
-  color: #888;
+  background: #f1f2f4;
+  color: #777;
 }
 
 /* ========================================
@@ -490,12 +512,12 @@
 }
 
 .days-danger {
-  color: #c62828;
+  color: #d63333;
   font-weight: 600;
 }
 
 .days-warning {
-  color: #f57c00;
+  color: #b8790a;
   font-weight: 600;
 }
 
@@ -515,7 +537,7 @@
   cursor: pointer;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -527,27 +549,19 @@
 }
 
 .btn-view {
-  color: #1565c0;
-  background: #e3f2fd;
+  color: #1668c1;
+  background: #eaf4ff;
 }
 .btn-view:hover {
-  background: #bbdefb;
-}
-
-.btn-pay {
-  color: #2e7d32;
-  background: #e8f5e9;
-}
-.btn-pay:hover {
-  background: #c8e6c9;
+  background: #d3e9ff;
 }
 
 .btn-cancel-credit {
-  color: #c62828;
-  background: #ffebee;
+  color: #d63333;
+  background: #fde8e8;
 }
 .btn-cancel-credit:hover {
-  background: #ffcdd2;
+  background: #fbd0d0;
 }
 
 /* ========================================
@@ -558,9 +572,9 @@
   text-align: center;
   padding: 60px 20px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-  border: 1px solid #eee;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  border: 1px solid #f0f1f3;
 }
 
 .empty-icon {
@@ -605,7 +619,7 @@
 
 .modal-container {
   background: white;
-  border-radius: 14px;
+  border-radius: 16px;
   width: 100%;
   max-width: 560px;
   max-height: 90vh;
@@ -628,11 +642,11 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f0f1f3;
   position: sticky;
   top: 0;
   background: white;
-  border-radius: 14px 14px 0 0;
+  border-radius: 16px 16px 0 0;
   z-index: 1;
 }
 
@@ -742,22 +756,34 @@
 }
 
 .payments-table thead {
-  background: #f8f8f8;
+  background: #fafbfc;
 }
 
 .payments-table th {
   padding: 10px 12px;
   text-align: left;
-  font-weight: 600;
-  color: #555;
+  font-weight: 700;
+  color: #6b7280;
   font-size: 11px;
   text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .payments-table td {
   padding: 10px 12px;
   color: #444;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f4f5f6;
+}
+
+.pm-pill {
+  display: inline-block;
+  background: #eef2ff;
+  color: #4048c9;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
 .payments-table tbody tr:last-child td {
@@ -796,19 +822,19 @@
 }
 
 .form-control {
-  padding: 10px 12px;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 8px;
+  padding: 9px 12px;
+  border: 1.5px solid #eceef1;
+  border-radius: 10px;
   font-size: 14px;
   font-family: 'Roboto', sans-serif;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   background: white;
 }
 
 .form-control:focus {
   outline: none;
   border-color: #fdc830;
-  box-shadow: 0 0 0 3px rgba(253, 200, 48, 0.1);
+  box-shadow: 0 0 0 3px rgba(253, 200, 48, 0.15);
 }
 
 .form-actions {
@@ -821,8 +847,8 @@
 }
 
 .btn {
-  padding: 10px 22px;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -855,12 +881,12 @@
 }
 
 .btn-secondary {
-  background-color: #f0f0f0;
-  color: #555;
+  background-color: #f1f2f4;
+  color: #333;
 }
 
 .btn-secondary:hover {
-  background-color: #e0e0e0;
+  background-color: #e6e7ea;
 }
 
 .spin-icon {
@@ -906,8 +932,8 @@
   .credits-table tbody tr {
     display: block;
     margin-bottom: 8px;
-    border: 1px solid #eee;
-    border-radius: 8px;
+    border: 1px solid #f0f1f3;
+    border-radius: 10px;
     padding: 10px;
   }
 
