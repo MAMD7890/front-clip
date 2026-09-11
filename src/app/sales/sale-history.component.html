@@ -74,15 +74,16 @@
               <ng-template #noPm><span class="pm-empty">Sin metodos</span></ng-template>
             </td>
             <td class="actions-cell">
-              <button class="btn-link" (click)="toggleDetails(sale.id)">
-                {{ isExpanded(sale.id) ? 'Ocultar' : 'Ver items' }}
+              <button class="icon-btn" (click)="toggleDetails(sale.id)" [title]="isExpanded(sale.id) ? 'Ocultar items' : 'Ver items'">
+                <i class="now-ui-icons" [ngClass]="isExpanded(sale.id) ? 'arrows-1_minimal-up' : 'ui-1_zoom-bold'"></i>
               </button>
               <button
-                class="btn-link"
+                class="icon-btn"
                 [disabled]="printingSaleId === sale.id"
                 (click)="reprint(sale.id)"
+                [title]="printingSaleId === sale.id ? 'Imprimiendo…' : 'Reimprimir'"
               >
-                {{ printingSaleId === sale.id ? 'Imprimiendo…' : 'Reimprimir' }}
+                <i class="now-ui-icons arrows-1_refresh-69"></i>
               </button>
             </td>
           </tr>

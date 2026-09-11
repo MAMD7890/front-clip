@@ -58,10 +58,18 @@
             </span>
           </td>
           <td class="actions-cell">
-            <a class="btn-link" [routerLink]="['/trabajadores', worker.id]">Ver detalle</a>
-            <button class="btn-link" (click)="editWorker(worker)">Editar</button>
-            <button class="btn-link" (click)="toggleActive(worker)">{{ worker.active ? 'Desactivar' : 'Activar' }}</button>
-            <button class="btn-link danger" (click)="deleteWorker(worker)">Eliminar</button>
+            <a class="icon-btn" [routerLink]="['/trabajadores', worker.id]" title="Ver detalle">
+              <i class="now-ui-icons ui-1_zoom-bold"></i>
+            </a>
+            <button class="icon-btn" (click)="editWorker(worker)" title="Editar">
+              <i class="now-ui-icons design-2_ruler-pencil"></i>
+            </button>
+            <button class="icon-btn" (click)="toggleActive(worker)" [title]="worker.active ? 'Desactivar' : 'Activar'">
+              <i class="now-ui-icons media-1_button-power"></i>
+            </button>
+            <button class="icon-btn danger" (click)="deleteWorker(worker)" title="Eliminar">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
           </td>
         </tr>
       </tbody>

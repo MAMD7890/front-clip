@@ -157,22 +157,37 @@
   font-size: 13px;
 }
 
-.btn-link {
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   border: none;
-  background: transparent;
-  color: #1565c0;
+  border-radius: 8px;
+  background: #f1f2f4;
+  color: #555;
   cursor: pointer;
-  font-weight: 600;
+  transition: all 0.15s ease;
 }
 
-.btn-link:disabled {
-  color: #999;
+.icon-btn i {
+  font-size: 15px;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: #fdc830;
+  color: #1a1a1a;
+}
+
+.icon-btn:disabled {
+  color: #bbb;
   cursor: not-allowed;
 }
 
 .actions-cell {
   display: flex;
-  gap: 12px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 

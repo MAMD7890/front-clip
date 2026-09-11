@@ -85,7 +85,9 @@
           <td>{{ payment.description || '—' }}</td>
           <td [ngClass]="payment.type === 'PAYMENT' ? 'positive-cell' : 'advance-cell'">{{ formatPrice(payment.amount) }}</td>
           <td>
-            <button class="btn-link danger" (click)="deletePayment(payment)">Eliminar</button>
+            <button class="icon-btn danger" (click)="deletePayment(payment)" title="Eliminar">
+              <i class="now-ui-icons ui-1_simple-remove"></i>
+            </button>
           </td>
         </tr>
       </tbody>
