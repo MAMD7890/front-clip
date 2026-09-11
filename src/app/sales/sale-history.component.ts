@@ -37,6 +37,8 @@ export class SaleHistoryComponent implements OnInit {
   private filterDebounce: any = null;
   printingSaleId: number | null = null;
   cancellingSaleId: number | null = null;
+  showCancelConfirm = false;
+  saleToCancel: Sale | null = null;
 
   constructor(
     private saleService: SaleService,
@@ -175,20 +177,34 @@ export class SaleHistoryComponent implements OnInit {
     if (!sale.id || this.cancellingSaleId) {
       return;
     }
-    if (!confirm(`¿Seguro que deseas cancelar la venta #${sale.id}? Esto restaura el stock y quita el movimiento de caja/crédito asociado.`)) {
+    this.saleToCancel = sale;
+    this.showCancelConfirm = true;
+  }
+
+  dismissCancelConfirm(): void {
+    this.showCancelConfirm = false;
+    this.saleToCancel = null;
+  }
+
+  confirmCancelSale(): void {
+    const sale = this.saleToCancel;
+    if (!sale || !sale.id) {
       return;
     }
+    this.showCancelConfirm = false;
 
     this.cancellingSaleId = sale.id;
     this.saleService.cancel(sale.id).subscribe({
       next: (updated) => {
         this.cancellingSaleId = null;
+        this.saleToCancel = null;
         sale.cancelled = updated.cancelled;
         sale.cancelledDate = updated.cancelledDate;
         this.showMessage('Venta #' + sale.id + ' cancelada correctamente', 'success');
       },
       error: (err) => {
         this.cancellingSaleId = null;
+        this.saleToCancel = null;
         const msg = err?.error?.error || err?.error?.message || 'No fue posible cancelar la venta';
         this.showMessage(msg, 'error');
       }
