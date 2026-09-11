@@ -31,6 +31,7 @@ export class SidebarComponent implements OnInit {
     { iconClass: 'business_money-coins', label: 'Créditos', route: '/credits', moduleKey: 'credits' },
     { iconClass: 'business_money-coins', label: 'Caja', route: '/caja', moduleKey: 'cash-register' },
     { iconClass: 'files_paper', label: 'Historial de Caja', route: '/caja/historial', moduleKey: 'cash-register-history' },
+    { iconClass: 'business_money-coins', label: 'Gastos', route: '/gastos', moduleKey: 'expenses' },
     { iconClass: 'business_chart-bar-32', label: 'Reportes', route: '/reports', moduleKey: 'reports' },
     { iconClass: 'business_badge', label: 'Usuarios', route: '/users', moduleKey: 'users' },
     { iconClass: 'files_single-copy-04', label: 'Fact. Externa', route: '/external-invoices', moduleKey: 'external-invoices' }
@@ -74,7 +75,13 @@ export class SidebarComponent implements OnInit {
   }
 
   isActive(route: string): boolean {
-    return this.currentRoute.startsWith(route);
+    const matches = (r: string) => this.currentRoute === r || this.currentRoute.startsWith(r + '/');
+    if (!matches(route)) {
+      return false;
+    }
+    // Si otra ruta del menú es más específica (p.ej. /caja/historial dentro de /caja),
+    // esa gana y esta no debe marcarse activa.
+    return !this.menuItems.some(item => item.route !== route && item.route.length > route.length && matches(item.route));
   }
 }
 

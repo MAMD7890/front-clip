@@ -1,0 +1,82 @@
+<div class="history-container">
+  <div class="section-header">
+    <h1><i class="now-ui-icons business_money-coins section-icon"></i> Gastos</h1>
+    <p>Consulta y filtra los gastos registrados desde Caja</p>
+  </div>
+
+  <div *ngIf="message" class="alert" [ngClass]="'alert-' + messageType">{{ message }}</div>
+
+  <div class="filters-card">
+    <div class="filter-group">
+      <label for="startDate">Desde</label>
+      <input id="startDate" type="datetime-local" [(ngModel)]="startDate" (change)="applyFilters()" class="form-control" />
+    </div>
+    <div class="filter-group">
+      <label for="endDate">Hasta</label>
+      <input id="endDate" type="datetime-local" [(ngModel)]="endDate" (change)="applyFilters()" class="form-control" />
+    </div>
+    <div class="filter-group">
+      <label for="description">Descripción</label>
+      <input
+        id="description"
+        type="text"
+        [(ngModel)]="descriptionFilter"
+        (input)="onFilterInput()"
+        class="form-control"
+        placeholder="Ej: proveedor, arriendo..."
+      />
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="total-banner" *ngIf="!loading">
+    <span class="total-label">Total gastos {{ (startDate || endDate || descriptionFilter) ? 'filtrados' : '' }}</span>
+    <span class="total-value">{{ formatPrice(totalAmount) }}</span>
+  </div>
+
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando gastos...</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="!loading">
+    <table class="table" *ngIf="expenses.length > 0; else noData">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Descripción</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let expense of expenses">
+          <td>{{ formatDate(expense.date) }}</td>
+          <td>{{ expense.description || '—' }}</td>
+          <td class="total-cell">{{ formatPrice(expense.amount) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="pagination-info" *ngIf="totalElements > 0">
+      Mostrando {{ visibleRange }} gastos
+    </div>
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">&laquo;&laquo;</button>
+      <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">&laquo; Anterior</button>
+      <button *ngFor="let page of pages" class="page-btn" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
+      <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Siguiente &raquo;</button>
+      <button class="page-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">&raquo;&raquo;</button>
+    </div>
+
+    <ng-template #noData>
+      <div class="empty-state">
+        <i class="now-ui-icons files_box empty-icon"></i>
+        <h3>No se encontraron gastos</h3>
+        <p>Intenta ajustar los filtros, o registra un gasto desde Caja</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

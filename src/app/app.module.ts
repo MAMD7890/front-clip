@@ -27,6 +27,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ReportsComponent } from './reports/reports.component';
 import { UsersComponent } from './users/users.component';
 import { ExternalInvoicesComponent } from './external-invoices/external-invoices.component';
+import { ExpensesComponent } from './expenses/expenses.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from './services/auth.service';
 import { AuthInterceptor } from './services/auth.interceptor';
@@ -61,7 +62,8 @@ import { AuthInterceptor } from './services/auth.interceptor';
     DashboardComponent,
     ReportsComponent,
     UsersComponent,
-    ExternalInvoicesComponent
+    ExternalInvoicesComponent,
+    ExpensesComponent
   ],
   providers: [
     AuthService,

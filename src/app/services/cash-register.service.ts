@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { CashRegisterDto, CashMovementDto } from '../models/cash-register.models';
+import { CashRegisterDto, CashMovementDto, MovementType } from '../models/cash-register.models';
+import { PageResponse } from './sale.service';
 
 @Injectable({
   providedIn: 'root'
@@ -47,5 +48,42 @@ export class CashRegisterService {
 
   downloadCloseReport(id: number): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/${id}/close-report`, { responseType: 'blob' });
+  }
+
+  /** Historial de movimientos (todas las cajas), paginado y filtrable — usado por el módulo de Gastos. */
+  searchMovements(
+    type: MovementType,
+    page: number,
+    size: number,
+    start?: string,
+    end?: string,
+    description?: string
+  ): Observable<PageResponse<CashMovementDto>> {
+    let params = new HttpParams().set('type', type).set('page', page).set('size', size);
+    if (start) {
+      params = params.set('start', start);
+    }
+    if (end) {
+      params = params.set('end', end);
+    }
+    if (description) {
+      params = params.set('description', description);
+    }
+    return this.http.get<PageResponse<CashMovementDto>>(`${this.baseUrl}/movements`, { params });
+  }
+
+  /** Suma total de los movimientos que coinciden con los mismos filtros de searchMovements. */
+  getMovementsTotal(type: MovementType, start?: string, end?: string, description?: string): Observable<number> {
+    let params = new HttpParams().set('type', type);
+    if (start) {
+      params = params.set('start', start);
+    }
+    if (end) {
+      params = params.set('end', end);
+    }
+    if (description) {
+      params = params.set('description', description);
+    }
+    return this.http.get<number>(`${this.baseUrl}/movements/total`, { params });
   }
 }
