@@ -66,11 +66,23 @@
             <td>#{{ sale.id }}</td>
             <td>{{ getCustomerName(sale.customerId) }}</td>
             <td>{{ getSaleDate(sale) }}</td>
-            <td class="total-cell">{{ formatPrice(sale.totalValue) }}</td>
-            <td>{{ sale.paymentMethodNames?.join(', ') || 'Sin metodos' }}</td>
+            <td><span class="total-pill">{{ formatPrice(sale.totalValue) }}</span></td>
             <td>
+              <span class="pm-pills" *ngIf="sale.paymentMethodNames?.length; else noPm">
+                <span class="pm-pill" *ngFor="let pm of sale.paymentMethodNames">{{ pm }}</span>
+              </span>
+              <ng-template #noPm><span class="pm-empty">Sin metodos</span></ng-template>
+            </td>
+            <td class="actions-cell">
               <button class="btn-link" (click)="toggleDetails(sale.id)">
                 {{ isExpanded(sale.id) ? 'Ocultar' : 'Ver items' }}
+              </button>
+              <button
+                class="btn-link"
+                [disabled]="printingSaleId === sale.id"
+                (click)="reprint(sale.id)"
+              >
+                {{ printingSaleId === sale.id ? 'Imprimiendo…' : 'Reimprimir' }}
               </button>
             </td>
           </tr>

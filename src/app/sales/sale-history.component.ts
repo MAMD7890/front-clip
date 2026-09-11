@@ -6,6 +6,7 @@ import { CustomerService } from '../services/customer.service';
 import { ProductService } from '../services/product.service';
 import { SaleService } from '../services/sale.service';
 import { DateFormatterService } from '../services/date-formatter.service';
+import { PrinterService } from '../services/printer.service';
 
 @Component({
   selector: 'app-sale-history',
@@ -33,12 +34,14 @@ export class SaleHistoryComponent implements OnInit {
   totalElements = 0;
 
   private filterDebounce: any = null;
+  printingSaleId: number | null = null;
 
   constructor(
     private saleService: SaleService,
     private customerService: CustomerService,
     private productService: ProductService,
-    private dateFormatter: DateFormatterService
+    private dateFormatter: DateFormatterService,
+    private printerService: PrinterService
   ) {}
 
   ngOnInit(): void {
@@ -134,6 +137,40 @@ export class SaleHistoryComponent implements OnInit {
       return;
     }
     this.expandedSales[saleId] = !this.expandedSales[saleId];
+  }
+
+  reprint(saleId?: number): void {
+    if (!saleId || this.printingSaleId) {
+      return;
+    }
+    this.printingSaleId = saleId;
+    this.saleService.getReceiptBytes(saleId).subscribe({
+      next: (bytes) => {
+        const base64 = this.arrayBufferToBase64(bytes);
+        this.printerService.printReceipt(base64)
+          .catch((err: any) => {
+            console.error('[Printer] Error al imprimir:', err);
+            const detail = err && err.message ? err.message : 'verifica que QZ Tray esté activo en este PC.';
+            this.showMessage('No se pudo imprimir — ' + detail, 'error');
+          })
+          .then(() => {
+            this.printingSaleId = null;
+          });
+      },
+      error: () => {
+        this.printingSaleId = null;
+        this.showMessage('No fue posible obtener el recibo de la venta #' + saleId, 'error');
+      }
+    });
+  }
+
+  private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
   }
 
   isExpanded(saleId?: number): boolean {

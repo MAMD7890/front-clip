@@ -59,4 +59,9 @@ export class SaleService {
     }
     return this.http.get<PageResponse<Sale>>(this.baseUrl, { params });
   }
+
+  /** Bytes ESC/POS crudos del recibo de una venta ya registrada, para reimprimir. */
+  getReceiptBytes(saleId: number): Observable<ArrayBuffer> {
+    return this.http.get(`${this.baseUrl}/${saleId}/receipt`, { responseType: 'arraybuffer' });
+  }
 }
