@@ -12,9 +12,16 @@ export class CashRegisterHistoryComponent implements OnInit {
   cajas: CashRegisterDto[] = [];
   loading = true;
   expandedCajas: { [key: number]: boolean } = {};
+  loadingDetail: { [key: number]: boolean } = {};
   downloadingCajas: { [key: number]: boolean } = {};
   message: string | null = null;
   messageType: 'success' | 'error' | null = null;
+
+  // Paginación (server-side)
+  currentPage = 1;
+  pageSize = 20;
+  totalPages = 0;
+  totalElements = 0;
 
   constructor(
     private cashService: CashRegisterService,
@@ -27,9 +34,11 @@ export class CashRegisterHistoryComponent implements OnInit {
 
   loadHistory(): void {
     this.loading = true;
-    this.cashService.getAll().subscribe({
-      next: (data) => {
-        this.cajas = data;
+    this.cashService.getAll(this.currentPage - 1, this.pageSize).subscribe({
+      next: (page) => {
+        this.cajas = page.content;
+        this.totalPages = page.totalPages;
+        this.totalElements = page.totalElements;
         this.loading = false;
       },
       error: () => {
@@ -39,8 +48,59 @@ export class CashRegisterHistoryComponent implements OnInit {
     });
   }
 
-  toggleDetail(id: number): void {
-    this.expandedCajas[id] = !this.expandedCajas[id];
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadHistory();
+    }
+  }
+
+  get pages(): number[] {
+    const maxPagesToShow = 3;
+    const start = Math.max(1, this.currentPage - 1);
+    const end = Math.min(this.totalPages, this.currentPage + 1);
+    const pages: number[] = [];
+    for (let i = start; i <= end && pages.length < maxPagesToShow; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  get visibleRange(): string {
+    if (this.totalElements === 0) {
+      return '0';
+    }
+    const start = (this.currentPage - 1) * this.pageSize + 1;
+    const end = Math.min(this.currentPage * this.pageSize, this.totalElements);
+    return `${start} - ${end} de ${this.totalElements}`;
+  }
+
+  /** El detalle (movimientos) de cada caja se trae solo al abrirlo, no de una vez para toda la lista. */
+  toggleDetail(caja: CashRegisterDto): void {
+    if (!caja.id) {
+      return;
+    }
+    if (this.expandedCajas[caja.id]) {
+      this.expandedCajas[caja.id] = false;
+      return;
+    }
+
+    this.expandedCajas[caja.id] = true;
+    if (caja.movements && caja.movements.length > 0) {
+      return; // ya se había cargado antes
+    }
+
+    this.loadingDetail[caja.id] = true;
+    this.cashService.getById(caja.id).subscribe({
+      next: (full) => {
+        Object.assign(caja, full);
+        this.loadingDetail[caja.id!] = false;
+      },
+      error: () => {
+        this.loadingDetail[caja.id!] = false;
+        this.showMessage('No fue posible cargar el detalle de la caja', 'error');
+      }
+    });
   }
 
   isExpanded(id: number): boolean {
@@ -93,7 +153,7 @@ export class CashRegisterHistoryComponent implements OnInit {
 
   downloadReport(cajaId: number): void {
     if (!cajaId) return;
-    
+
     this.downloadingCajas[cajaId] = true;
     this.cashService.downloadCloseReport(cajaId).subscribe({
       next: (blob) => {

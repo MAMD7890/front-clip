@@ -40,17 +40,19 @@
               <td>{{ formatDate(caja.closingDate) }}</td>
               <td>{{ formatPrice(caja.openingAmount) }}</td>
               <td>{{ formatPrice(caja.closingAmount) }}</td>
-              <td>{{ formatPrice(caja.totalSales) }} <small>({{ caja.saleCount }})</small></td>
+              <td><span class="total-pill">{{ formatPrice(caja.totalSales) }}</span> <small>({{ caja.saleCount }})</small></td>
               <td [ngClass]="{
                 'diff-zero': caja.difference === 0,
                 'diff-positive': caja.difference !== null && caja.difference > 0,
                 'diff-negative': caja.difference !== null && caja.difference < 0
               }">
-                <span *ngIf="caja.difference !== null">{{ formatPrice(caja.difference) }} <i [ngClass]="getDifferenceIconClass(caja.difference)"></i></span>
-                <span *ngIf="caja.difference === null">—</span>
+                <span class="diff-pill">
+                  <span *ngIf="caja.difference !== null">{{ formatPrice(caja.difference) }} <i [ngClass]="getDifferenceIconClass(caja.difference)"></i></span>
+                  <span *ngIf="caja.difference === null">—</span>
+                </span>
               </td>
               <td>
-                <button class="btn-link" (click)="toggleDetail(caja.id)">
+                <button class="btn-link" (click)="toggleDetail(caja)">
                   {{ isExpanded(caja.id) ? 'Ocultar' : 'Ver detalle' }}
                 </button>
               </td>
@@ -58,79 +60,98 @@
             <tr *ngIf="isExpanded(caja.id)">
               <td colspan="9" class="details-cell">
                 <div class="details-box">
-                  <div class="details-header">
-                    <h4>Resumen de Caja #{{ caja.id }}</h4>
-                    <button 
-                      class="btn btn-download" 
-                      (click)="downloadReport(caja.id)"
-                      [disabled]="downloadingCajas[caja.id]"
-                      title="Descargar reporte en PDF">
-                      <i class="now-ui-icons ui-2_settings-90"></i>
-                      {{ downloadingCajas[caja.id] ? 'Descargando...' : 'Descargar PDF' }}
-                    </button>
-                  </div>
-                  <div class="detail-summary">
-                    <div class="summary-item">
-                      <span class="summary-label">Base</span>
-                      <span class="summary-value">{{ formatPrice(caja.openingAmount) }}</span>
-                    </div>
-                    <div class="summary-item highlight">
-                      <span class="summary-label">Ventas</span>
-                      <span class="summary-value">{{ formatPrice(caja.totalSales) }}</span>
-                      <span class="summary-sub">{{ caja.saleCount }} venta(s)</span>
-                    </div>
-                    <div class="summary-item">
-                      <span class="summary-label">Ingresos</span>
-                      <span class="summary-value">{{ formatPrice(caja.totalIncomes) }}</span>
-                    </div>
-                    <div class="summary-item expense">
-                      <span class="summary-label">Gastos</span>
-                      <span class="summary-value">-{{ formatPrice(caja.totalExpenses) }}</span>
-                    </div>
-                    <div class="summary-item expense">
-                      <span class="summary-label">Retiros</span>
-                      <span class="summary-value">-{{ formatPrice(caja.totalWithdrawals) }}</span>
-                    </div>
-                    <div class="summary-item primary">
-                      <span class="summary-label">Esperado</span>
-                      <span class="summary-value">{{ formatPrice(caja.expectedAmount) }}</span>
-                    </div>
+                  <div class="loading-spinner" *ngIf="loadingDetail[caja.id!]">
+                    <div class="spinner"></div>
+                    <p>Cargando movimientos...</p>
                   </div>
 
-                  <h4>Movimientos</h4>
-                  <table class="detail-table" *ngIf="caja.movements?.length; else noMovements">
-                    <thead>
-                      <tr>
-                        <th>Hora</th>
-                        <th>Tipo</th>
-                        <th>Descripción</th>
-                        <th>Monto</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let mov of caja.movements">
-                        <td>{{ formatTime(mov.date) }}</td>
-                        <td>
-                          <span class="badge" [ngClass]="'badge-' + mov.type.toLowerCase()">
-                            {{ getMovementTypeLabel(mov.type) }}
-                          </span>
-                        </td>
-                        <td>{{ mov.description || (mov.saleId ? 'Venta #' + mov.saleId : '—') }}</td>
-                        <td [ngClass]="mov.type === 'EXPENSE' || mov.type === 'WITHDRAWAL' ? 'negative' : 'positive'">
-                          {{ getMovementSign(mov.type) }}{{ formatPrice(mov.amount) }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <ng-template #noMovements>
-                    <p class="empty-text">No hay movimientos registrados.</p>
-                  </ng-template>
+                  <ng-container *ngIf="!loadingDetail[caja.id!]">
+                    <div class="details-header">
+                      <h4>Resumen de Caja #{{ caja.id }}</h4>
+                      <button
+                        class="btn btn-download"
+                        (click)="downloadReport(caja.id)"
+                        [disabled]="downloadingCajas[caja.id]"
+                        title="Descargar reporte en PDF">
+                        <i class="now-ui-icons ui-2_settings-90"></i>
+                        {{ downloadingCajas[caja.id] ? 'Descargando...' : 'Descargar PDF' }}
+                      </button>
+                    </div>
+                    <div class="detail-summary">
+                      <div class="summary-item">
+                        <span class="summary-label">Base</span>
+                        <span class="summary-value">{{ formatPrice(caja.openingAmount) }}</span>
+                      </div>
+                      <div class="summary-item highlight">
+                        <span class="summary-label">Ventas</span>
+                        <span class="summary-value">{{ formatPrice(caja.totalSales) }}</span>
+                        <span class="summary-sub">{{ caja.saleCount }} venta(s)</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="summary-label">Ingresos</span>
+                        <span class="summary-value">{{ formatPrice(caja.totalIncomes) }}</span>
+                      </div>
+                      <div class="summary-item expense">
+                        <span class="summary-label">Gastos</span>
+                        <span class="summary-value">-{{ formatPrice(caja.totalExpenses) }}</span>
+                      </div>
+                      <div class="summary-item expense">
+                        <span class="summary-label">Retiros</span>
+                        <span class="summary-value">-{{ formatPrice(caja.totalWithdrawals) }}</span>
+                      </div>
+                      <div class="summary-item primary">
+                        <span class="summary-label">Esperado</span>
+                        <span class="summary-value">{{ formatPrice(caja.expectedAmount) }}</span>
+                      </div>
+                    </div>
+
+                    <h4>Movimientos</h4>
+                    <table class="detail-table" *ngIf="caja.movements?.length; else noMovements">
+                      <thead>
+                        <tr>
+                          <th>Hora</th>
+                          <th>Tipo</th>
+                          <th>Descripción</th>
+                          <th>Monto</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let mov of caja.movements">
+                          <td>{{ formatTime(mov.date) }}</td>
+                          <td>
+                            <span class="badge" [ngClass]="'badge-' + mov.type.toLowerCase()">
+                              {{ getMovementTypeLabel(mov.type) }}
+                            </span>
+                          </td>
+                          <td>{{ mov.description || (mov.saleId ? 'Venta #' + mov.saleId : '—') }}</td>
+                          <td [ngClass]="mov.type === 'EXPENSE' || mov.type === 'WITHDRAWAL' ? 'negative' : 'positive'">
+                            {{ getMovementSign(mov.type) }}{{ formatPrice(mov.amount) }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <ng-template #noMovements>
+                      <p class="empty-text">No hay movimientos registrados.</p>
+                    </ng-template>
+                  </ng-container>
                 </div>
               </td>
             </tr>
           </ng-container>
         </tbody>
       </table>
+
+      <!-- Paginación -->
+      <div class="pagination-info" *ngIf="totalElements > 0">
+        Mostrando {{ visibleRange }} cajas
+      </div>
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="page-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">&laquo;&laquo;</button>
+        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">&laquo; Anterior</button>
+        <button *ngFor="let page of pages" class="page-btn" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Siguiente &raquo;</button>
+        <button class="page-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">&raquo;&raquo;</button>
+      </div>
     </div>
 
     <ng-template #noData>

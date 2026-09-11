@@ -38,8 +38,10 @@ export class CashRegisterService {
     return this.http.get<CashRegisterDto>(`${this.baseUrl}/${id}`);
   }
 
-  getAll(): Observable<CashRegisterDto[]> {
-    return this.http.get<CashRegisterDto[]>(this.baseUrl);
+  /** Historial paginado de cajas, sin el detalle de movimientos (usar getById para el detalle). */
+  getAll(page: number, size: number): Observable<PageResponse<CashRegisterDto>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<PageResponse<CashRegisterDto>>(this.baseUrl, { params });
   }
 
   addMovement(movement: Partial<CashMovementDto>): Observable<CashMovementDto> {
