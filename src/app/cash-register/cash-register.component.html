@@ -67,9 +67,11 @@
       <!-- Cuadre de transferencias -->
       <div class="reconcile-bar" *ngIf="cashRegister.movements?.length">
         <div class="reconcile-filters">
-          <button class="filter-btn" [class.active]="transferFilter === 'ALL'" (click)="setTransferFilter('ALL')">Todas</button>
-          <button class="filter-btn" [class.active]="transferFilter === 'NEQUI'" (click)="setTransferFilter('NEQUI')">Nequi</button>
-          <button class="filter-btn" [class.active]="transferFilter === 'QR'" (click)="setTransferFilter('QR')">QR</button>
+          <label for="transferFilter">Método de pago</label>
+          <select id="transferFilter" class="form-control" [(ngModel)]="transferFilter">
+            <option value="ALL">Todas</option>
+            <option *ngFor="let pm of paymentMethods" [value]="pm.name">{{ pm.name }}</option>
+          </select>
         </div>
         <div class="reconcile-summary">
           <span>Seleccionadas: <strong>{{ selectedCount }}</strong></span>

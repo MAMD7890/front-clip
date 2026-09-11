@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CashRegisterDto, CashMovementDto, MovementType } from '../models/cash-register.models';
+import { PaymentMethod } from '../models/payment-method.models';
 import { CashRegisterService } from '../services/cash-register.service';
 import { DateFormatterService } from '../services/date-formatter.service';
+import { PaymentMethodService } from '../services/payment-method.service';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -33,19 +35,29 @@ export class CashRegisterComponent implements OnInit, OnDestroy {
   submitting = false;
   downloadingPdf = false;
 
-  // Cuadre de transferencias (Nequi/QR)
-  transferFilter: 'ALL' | 'NEQUI' | 'QR' = 'ALL';
+  // Cuadre de transferencias
+  paymentMethods: PaymentMethod[] = [];
+  transferFilter = 'ALL';
   selectedMovementIds = new Set<number>();
 
   private refreshSub: Subscription | null = null;
 
   constructor(
     private cashService: CashRegisterService,
-    private dateFormatter: DateFormatterService
+    private dateFormatter: DateFormatterService,
+    private paymentMethodService: PaymentMethodService
   ) {}
 
   ngOnInit(): void {
     this.loadCurrent();
+    this.loadPaymentMethods();
+  }
+
+  loadPaymentMethods(): void {
+    this.paymentMethodService.getAll().subscribe({
+      next: (data) => (this.paymentMethods = data),
+      error: () => (this.paymentMethods = [])
+    });
   }
 
   ngOnDestroy(): void {
@@ -266,20 +278,13 @@ export class CashRegisterComponent implements OnInit, OnDestroy {
     return '\u274c';
   }
 
-  // === CUADRE DE TRANSFERENCIAS (Nequi/QR) ===
-  setTransferFilter(filter: 'ALL' | 'NEQUI' | 'QR'): void {
-    this.transferFilter = filter;
-  }
-
+  // === CUADRE DE TRANSFERENCIAS ===
   get filteredMovements(): CashMovementDto[] {
     const movements = this.cashRegister?.movements || [];
     if (this.transferFilter === 'ALL') {
       return movements;
     }
-    const keyword = this.transferFilter === 'NEQUI' ? 'nequi' : 'qr';
-    return movements.filter((m) =>
-      m.paymentMethodNames?.some((pm) => pm.toLowerCase().includes(keyword))
-    );
+    return movements.filter((m) => m.paymentMethodNames?.includes(this.transferFilter));
   }
 
   toggleMovementSelection(movementId?: number): void {

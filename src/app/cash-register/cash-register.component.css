@@ -296,24 +296,19 @@
 
 .reconcile-filters {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.filter-btn {
-  border: 1.5px solid #eceef1;
-  background: #fff;
-  border-radius: 999px;
-  padding: 6px 14px;
+.reconcile-filters label {
   font-size: 13px;
   font-weight: 600;
   color: #555;
-  cursor: pointer;
 }
 
-.filter-btn.active {
-  background: #fdc830;
-  border-color: #fdc830;
-  color: #1a1a1a;
+.reconcile-filters select.form-control {
+  width: auto;
+  min-width: 160px;
 }
 
 .reconcile-summary {
