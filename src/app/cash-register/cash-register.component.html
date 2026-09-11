@@ -63,18 +63,43 @@
     <!-- Tabla de movimientos -->
     <div class="movements-section">
       <h3>Movimientos del Día</h3>
+
+      <!-- Cuadre de transferencias -->
+      <div class="reconcile-bar" *ngIf="cashRegister.movements?.length">
+        <div class="reconcile-filters">
+          <button class="filter-btn" [class.active]="transferFilter === 'ALL'" (click)="setTransferFilter('ALL')">Todas</button>
+          <button class="filter-btn" [class.active]="transferFilter === 'NEQUI'" (click)="setTransferFilter('NEQUI')">Nequi</button>
+          <button class="filter-btn" [class.active]="transferFilter === 'QR'" (click)="setTransferFilter('QR')">QR</button>
+        </div>
+        <div class="reconcile-summary">
+          <span>Seleccionadas: <strong>{{ selectedCount }}</strong></span>
+          <span>Total: <strong>{{ formatPrice(selectedTotal) }}</strong></span>
+          <button class="btn-link" *ngIf="selectedCount > 0" (click)="clearSelection()">Limpiar selección</button>
+        </div>
+      </div>
+
       <div class="table-wrapper" *ngIf="cashRegister.movements?.length; else noMovements">
         <table class="table">
           <thead>
             <tr>
+              <th></th>
               <th>Hora</th>
               <th>Tipo</th>
               <th>Descripción</th>
+              <th>Método de Pago</th>
               <th>Monto</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let mov of cashRegister.movements" [ngClass]="'row-' + mov.type.toLowerCase()">
+            <tr *ngFor="let mov of filteredMovements" [ngClass]="'row-' + mov.type.toLowerCase()">
+              <td>
+                <input
+                  type="checkbox"
+                  *ngIf="mov.paymentMethodNames?.length"
+                  [checked]="isMovementSelected(mov.id)"
+                  (change)="toggleMovementSelection(mov.id)"
+                />
+              </td>
               <td>{{ formatTime(mov.date) }}</td>
               <td>
                 <span class="badge" [ngClass]="'badge-' + mov.type.toLowerCase()">
@@ -82,12 +107,19 @@
                 </span>
               </td>
               <td>{{ mov.description || (mov.saleId ? 'Venta #' + mov.saleId : '—') }}</td>
+              <td>
+                <span class="pm-pills" *ngIf="mov.paymentMethodNames?.length; else noPm">
+                  <span class="pm-pill" *ngFor="let pm of mov.paymentMethodNames">{{ pm }}</span>
+                </span>
+                <ng-template #noPm>—</ng-template>
+              </td>
               <td class="mov-amount" [ngClass]="mov.type === 'EXPENSE' || mov.type === 'WITHDRAWAL' ? 'negative' : 'positive'">
                 {{ getMovementSign(mov.type) }}{{ formatPrice(mov.amount) }}
               </td>
             </tr>
           </tbody>
         </table>
+        <p class="empty-text" *ngIf="!filteredMovements.length">No hay movimientos que coincidan con ese filtro.</p>
       </div>
       <ng-template #noMovements>
         <p class="empty-text">No hay movimientos registrados aún.</p>

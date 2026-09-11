@@ -33,6 +33,10 @@ export class CashRegisterComponent implements OnInit, OnDestroy {
   submitting = false;
   downloadingPdf = false;
 
+  // Cuadre de transferencias (Nequi/QR)
+  transferFilter: 'ALL' | 'NEQUI' | 'QR' = 'ALL';
+  selectedMovementIds = new Set<number>();
+
   private refreshSub: Subscription | null = null;
 
   constructor(
@@ -260,6 +264,52 @@ export class CashRegisterComponent implements OnInit, OnDestroy {
     if (diff === 0) return '\u2705';
     if (diff > 0) return '\u26a0\ufe0f';
     return '\u274c';
+  }
+
+  // === CUADRE DE TRANSFERENCIAS (Nequi/QR) ===
+  setTransferFilter(filter: 'ALL' | 'NEQUI' | 'QR'): void {
+    this.transferFilter = filter;
+  }
+
+  get filteredMovements(): CashMovementDto[] {
+    const movements = this.cashRegister?.movements || [];
+    if (this.transferFilter === 'ALL') {
+      return movements;
+    }
+    const keyword = this.transferFilter === 'NEQUI' ? 'nequi' : 'qr';
+    return movements.filter((m) =>
+      m.paymentMethodNames?.some((pm) => pm.toLowerCase().includes(keyword))
+    );
+  }
+
+  toggleMovementSelection(movementId?: number): void {
+    if (movementId == null) {
+      return;
+    }
+    if (this.selectedMovementIds.has(movementId)) {
+      this.selectedMovementIds.delete(movementId);
+    } else {
+      this.selectedMovementIds.add(movementId);
+    }
+  }
+
+  isMovementSelected(movementId?: number): boolean {
+    return movementId != null && this.selectedMovementIds.has(movementId);
+  }
+
+  clearSelection(): void {
+    this.selectedMovementIds.clear();
+  }
+
+  get selectedCount(): number {
+    return this.selectedMovementIds.size;
+  }
+
+  get selectedTotal(): number {
+    const movements = this.cashRegister?.movements || [];
+    return movements
+      .filter((m) => m.id != null && this.selectedMovementIds.has(m.id))
+      .reduce((sum, m) => sum + (this.getMovementSign(m.type) === '-' ? -m.amount : m.amount), 0);
   }
 
   private showMessage(message: string, type: 'success' | 'error'): void {

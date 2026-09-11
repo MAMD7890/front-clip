@@ -7,6 +7,7 @@ export interface CashMovementDto {
   description?: string;
   date?: string;
   saleId?: number | null;
+  paymentMethodNames?: string[];
 }
 
 export interface CashRegisterDto {
