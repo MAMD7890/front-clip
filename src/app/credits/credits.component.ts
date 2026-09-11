@@ -87,7 +87,9 @@ export class CreditsComponent implements OnInit {
       }
       const group = map.get(cid)!;
       group.credits.push(credit);
-      group.totalDebt += credit.remainingAmount || 0;
+      if (credit.status !== 'CANCELLED') {
+        group.totalDebt += credit.remainingAmount || 0;
+      }
       group.totalPaid += credit.paidAmount || 0;
     }
     this.customerGroups = Array.from(map.values());
@@ -97,7 +99,9 @@ export class CreditsComponent implements OnInit {
 
   calculateSummary() {
     this.totalCredits = this.credits.length;
-    this.totalDebt = this.credits.reduce((sum, c) => sum + (c.remainingAmount || 0), 0);
+    this.totalDebt = this.credits
+      .filter(c => c.status !== 'CANCELLED')
+      .reduce((sum, c) => sum + (c.remainingAmount || 0), 0);
     this.totalOverdue = this.credits.filter(c => c.status === 'OVERDUE').length;
   }
 
@@ -120,7 +124,9 @@ export class CreditsComponent implements OnInit {
 
     // Recalcular totales filtrados
     groups.forEach(g => {
-      g.totalDebt = g.credits.reduce((s, c) => s + (c.remainingAmount || 0), 0);
+      g.totalDebt = g.credits
+        .filter(c => c.status !== 'CANCELLED')
+        .reduce((s, c) => s + (c.remainingAmount || 0), 0);
       g.totalPaid = g.credits.reduce((s, c) => s + (c.paidAmount || 0), 0);
     });
 
