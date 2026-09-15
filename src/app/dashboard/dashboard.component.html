@@ -153,7 +153,7 @@
                     {{ debtor.overdueCreditsCount }}
                   </span>
                 </td>
-                <td class="text-right debt-amount">{{ formatCurrency(debtor.totalDebt) }}</td>
+                <td class="text-right"><span class="debt-amount">{{ formatCurrency(debtor.totalDebt) }}</span></td>
               </tr>
             </tbody>
           </table>
@@ -185,7 +185,7 @@
                 <td class="sale-id">{{ sale.saleId }}</td>
                 <td>{{ sale.customerName }}</td>
                 <td class="text-center">{{ sale.itemCount }}</td>
-                <td class="text-right sale-total">{{ formatCurrency(sale.totalValue) }}</td>
+                <td class="text-right"><span class="sale-total">{{ formatCurrency(sale.totalValue) }}</span></td>
                 <td class="sale-date">{{ sale.date }}</td>
               </tr>
             </tbody>

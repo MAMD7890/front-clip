@@ -26,6 +26,10 @@ export class SaleRegisterComponent implements OnInit {
   message: string | null = null;
   messageType: 'success' | 'error' | null = null;
 
+  showPrintConfirm = false;
+  printingReceipt = false;
+  private pendingReceipt: { saleId: any; base64: string } | null = null;
+
   constructor(
     private fb: FormBuilder,
     private customerService: CustomerService,
@@ -294,14 +298,8 @@ export class SaleRegisterComponent implements OnInit {
         this.resetForm();
 
         if (sale.receiptBase64) {
-          const imprimir = window.confirm('¿Desea imprimir el recibo de la venta #' + sale.id + '?');
-          if (imprimir) {
-            this.printerService.printReceipt(sale.receiptBase64).catch((err: any) => {
-              console.error('[Printer] Error al imprimir:', err);
-              const detail = err && err.message ? err.message : 'verifica que QZ Tray esté activo en este PC.';
-              this.showMessage('No se pudo imprimir — ' + detail, 'error');
-            });
-          }
+          this.pendingReceipt = { saleId: sale.id, base64: sale.receiptBase64 };
+          this.showPrintConfirm = true;
         }
       },
       error: (err) => {
@@ -310,6 +308,30 @@ export class SaleRegisterComponent implements OnInit {
         this.showMessage(backendMsg, 'error');
       }
     });
+  }
+
+  confirmPrint(): void {
+    if (!this.pendingReceipt) {
+      return;
+    }
+    const receipt = this.pendingReceipt;
+    this.printingReceipt = true;
+    this.printerService.printReceipt(receipt.base64)
+      .catch((err: any) => {
+        console.error('[Printer] Error al imprimir:', err);
+        const detail = err && err.message ? err.message : 'verifica que QZ Tray esté activo en este PC.';
+        this.showMessage('No se pudo imprimir — ' + detail, 'error');
+      })
+      .then(() => {
+        this.printingReceipt = false;
+        this.showPrintConfirm = false;
+        this.pendingReceipt = null;
+      });
+  }
+
+  cancelPrint(): void {
+    this.showPrintConfirm = false;
+    this.pendingReceipt = null;
   }
 
   resetForm(): void {

@@ -1,6 +1,6 @@
 .app-sidebar-panel {
   width: 280px;
-  background-color: #ececec;
+  background-color: #ffffff;
   color: #1a1a1a;
   padding: 0;
   position: fixed;
@@ -10,7 +10,8 @@
   overflow-y: auto;
   transition: all 0.3s ease;
   z-index: 150;
-  border-right: 1px solid #dcdcdc;
+  border-right: 1px solid #eef0f2;
+  box-shadow: 1px 0 6px rgba(0, 0, 0, 0.03);
 }
 
 .app-sidebar-panel.sidebar-collapsed {
@@ -54,43 +55,69 @@
 }
 
 .sidebar-nav {
-  padding: 10px 0;
+  padding: 14px 12px;
   list-style: none;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  padding: 15px 20px;
-  color: #555;
+  padding: 10px 12px;
+  color: #5c5c5c;
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
-  border-left: 3px solid transparent;
+  border-radius: 12px;
 }
 
 .nav-item:hover {
-  background-color: #f4f4f4;
+  background-color: #f6f7f9;
   color: #1a1a1a;
 }
 
+.nav-item:hover .nav-icon-wrap {
+  background-color: #f1e4bd;
+  color: #a87f00;
+}
+
 .nav-item.active {
-  background-color: #fff7de;
-  border-left-color: #fdc830;
-  color: #c79600;
+  background-color: #fdc830;
+  color: #1a1a1a;
+  box-shadow: 0 4px 10px rgba(253, 200, 48, 0.35);
+}
+
+.nav-item.active .nav-icon-wrap {
+  background-color: rgba(255, 255, 255, 0.55);
+  color: #1a1a1a;
+}
+
+.nav-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 9px;
+  background-color: #f1f2f4;
+  color: #777;
+  margin-right: 12px;
+  transition: all 0.2s ease;
 }
 
 .nav-icon {
-  font-size: 18px;
-  margin-right: 15px;
-  min-width: 20px;
+  font-size: 16px;
   text-align: center;
 }
 
 .nav-label {
   font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .sidebar-overlay {
@@ -110,7 +137,7 @@
 }
 
 .app-sidebar-panel::-webkit-scrollbar-track {
-  background: #ececec;
+  background: #ffffff;
 }
 
 .app-sidebar-panel::-webkit-scrollbar-thumb {
@@ -165,13 +192,15 @@
   }
 
   .nav-item {
-    padding: 12px 15px;
+    padding: 10px 12px;
     font-size: 13px;
   }
 
-  .nav-icon {
-    font-size: 18px;
-    margin-right: 12px;
+  .nav-icon-wrap {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    margin-right: 10px;
   }
 
   .sidebar-header {

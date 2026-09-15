@@ -77,7 +77,7 @@
             <td>
               <input type="number" class="form-control" formControlName="unitPrice" min="0" step="0.01" />
             </td>
-            <td class="line-total">{{ formatPrice(getLineTotal(i)) }}</td>
+            <td class="line-total"><span class="money-pill">{{ formatPrice(getLineTotal(i)) }}</span></td>
             <td>
               <button type="button" class="btn-icon" (click)="removeItem(i)" [disabled]="items.length === 1" title="Eliminar item">
                 <i class="now-ui-icons ui-1_simple-remove"></i>
@@ -112,7 +112,7 @@
     <div class="sale-total">
       <div class="total-row">
         <span>Total de Venta:</span>
-        <strong>{{ formatPrice(getSaleTotal()) }}</strong>
+        <strong class="total-pill">{{ formatPrice(getSaleTotal()) }}</strong>
       </div>
       <div class="total-row" *ngIf="saleForm.get('valueReceived')?.value">
         <span>Valor Recibido:</span>
@@ -133,4 +133,25 @@
       </button>
     </div>
   </form>
+</div>
+
+<div class="modal-overlay" *ngIf="showPrintConfirm" (click)="!printingReceipt && cancelPrint()">
+  <div class="modal-container print-confirm-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="now-ui-icons shopping_shop"></i> Venta registrada</h2>
+      <button class="modal-close" (click)="cancelPrint()" [disabled]="printingReceipt">
+        <i class="now-ui-icons ui-1_simple-remove"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>¿Desea imprimir el recibo de la venta?</p>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancelPrint()" [disabled]="printingReceipt">No, gracias</button>
+      <button type="button" class="btn btn-primary" (click)="confirmPrint()" [disabled]="printingReceipt">
+        <i class="now-ui-icons files_box"></i>
+        {{ printingReceipt ? 'Imprimiendo...' : 'Imprimir recibo' }}
+      </button>
+    </div>
+  </div>
 </div>

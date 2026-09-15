@@ -158,7 +158,7 @@
             <td>{{ formatDateTime(inv.date) }}</td>
             <td>{{ inv.description || '—' }}</td>
             <td>{{ inv.items?.length || 0 }}</td>
-            <td class="amount">{{ formatCurrency(inv.totalValue) }}</td>
+            <td><span class="amount">{{ formatCurrency(inv.totalValue) }}</span></td>
             <td class="actions">
               <button class="btn-icon blue" (click)="viewDetail(inv)" title="Ver detalle">
                 <i class="now-ui-icons ui-1_zoom-bold"></i>

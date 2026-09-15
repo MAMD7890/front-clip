@@ -1,12 +1,12 @@
 .navbar {
   background-color: white;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 15px 20px;
+  border-bottom: 1px solid #eef0f2;
+  padding: 15px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   position: sticky;
   top: 0;
   z-index: 200;
@@ -104,6 +104,13 @@
   align-items: center;
   gap: 12px;
   position: relative;
+  padding: 6px 8px 6px 16px;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.user-section:hover {
+  background-color: #f6f7f9;
 }
 
 .greeting {
@@ -114,25 +121,25 @@
 }
 
 .user-btn {
-  background-color: #f5f5f5;
-  border: 1px solid #e0e0e0;
-  width: 40px;
-  height: 40px;
+  background-color: #fdc830;
+  border: 2px solid #ffe8a3;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #1a1a1a;
 }
 
 .user-btn .now-ui-icons {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .user-btn:hover {
-  background-color: #fdc830;
-  border-color: #fdc830;
+  box-shadow: 0 4px 10px rgba(253, 200, 48, 0.4);
 }
 
 .user-menu {

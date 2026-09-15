@@ -47,7 +47,7 @@
   color: #1a1a1a;
   border: none;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
@@ -135,12 +135,13 @@
 
 .kpi-card {
   background: #fff;
-  border-radius: 12px;
+  border: 1px solid #f0f1f3;
+  border-radius: 16px;
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   border-left: 4px solid #ddd;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -151,8 +152,8 @@
 }
 
 .kpi-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -224,8 +225,9 @@
 
 .table-card {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f1f3;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
@@ -235,8 +237,8 @@
 
 .table-header {
   padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+  border-bottom: 1px solid #f0f1f3;
+  background: #fafbfc;
 }
 
 .table-header h3 {
@@ -254,11 +256,11 @@
 }
 
 .table-header-warning {
-  background: #fff8e1;
+  background: #fff4df;
 }
 
 .table-header-warning h3 i {
-  color: #e74c3c;
+  color: #b8790a;
 }
 
 .table-body {
@@ -273,27 +275,31 @@
 }
 
 .table-body table thead th {
-  padding: 10px 16px;
-  font-size: 11px;
+  padding: 12px 16px;
+  font-size: 12px;
   font-weight: 700;
-  color: #999;
+  color: #6b7280;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid #f0f0f0;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid #f0f1f3;
   position: sticky;
   top: 0;
-  background: #fff;
+  background: #fafbfc;
 }
 
 .table-body table tbody td {
-  padding: 10px 16px;
+  padding: 11px 16px;
   font-size: 13px;
   color: #333;
-  border-bottom: 1px solid #f8f8f8;
+  border-bottom: 1px solid #f4f5f6;
+}
+
+.table-body table tbody tr:nth-child(odd) {
+  background-color: #fbfbfc;
 }
 
 .table-body table tbody tr:hover {
-  background: #fafafa;
+  background: #fdf8ea;
 }
 
 .table-body table tbody tr:last-child td {
@@ -309,8 +315,13 @@
 }
 
 .debt-amount {
+  display: inline-block;
   font-weight: 700;
-  color: #e74c3c;
+  color: #d63333;
+  background: #fde8e8;
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 13px;
 }
 
 .sale-id {
@@ -319,8 +330,13 @@
 }
 
 .sale-total {
+  display: inline-block;
   font-weight: 700;
-  color: #4CAF50;
+  color: #a87f00;
+  background: #fff7de;
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 13px;
 }
 
 .sale-date {
@@ -339,40 +355,40 @@
 }
 
 .stock-zero {
-  color: #e74c3c;
+  color: #d63333;
 }
 
 .stock-low {
-  color: #FF9800;
+  color: #b8790a;
 }
 
 /* Badges */
 .badge {
   display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 4px 11px;
+  border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
 }
 
 .badge-info {
-  background: rgba(33, 150, 243, 0.1);
-  color: #2196F3;
+  background: #eaf4ff;
+  color: #1668c1;
 }
 
 .badge-danger {
-  background: rgba(231, 76, 60, 0.1);
-  color: #e74c3c;
+  background: #fde8e8;
+  color: #d63333;
 }
 
 .badge-success {
-  background: rgba(76, 175, 80, 0.1);
-  color: #4CAF50;
+  background: #e8f9ea;
+  color: #1a9f4c;
 }
 
 .badge-warning {
-  background: rgba(255, 152, 0, 0.1);
-  color: #FF9800;
+  background: #fff4df;
+  color: #b8790a;
 }
 
 /* Table Empty State */

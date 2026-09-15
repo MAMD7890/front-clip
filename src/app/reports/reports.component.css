@@ -47,7 +47,7 @@
   color: #1a1a1a;
   border: none;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
@@ -76,9 +76,9 @@
 
 .period-tabs button {
   padding: 10px 20px;
-  border: 2px solid #e0e0e0;
+  border: 1.5px solid #eceef1;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
   color: #666;
@@ -106,10 +106,11 @@
   align-items: flex-end;
   gap: 16px;
   margin-bottom: 20px;
-  padding: 16px 20px;
+  padding: 18px 20px;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f1f3;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   flex-wrap: wrap;
 }
 
@@ -128,17 +129,18 @@
 }
 
 .filter-group input {
-  padding: 8px 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
+  padding: 9px 12px;
+  border: 1.5px solid #eceef1;
+  border-radius: 10px;
   font-size: 13px;
   font-family: 'Roboto', sans-serif;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .filter-group input:focus {
   outline: none;
   border-color: #fdc830;
+  box-shadow: 0 0 0 3px rgba(253, 200, 48, 0.15);
 }
 
 .btn-search {
@@ -146,7 +148,7 @@
   color: #fff;
   border: none;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
@@ -217,7 +219,7 @@
   color: #999;
   padding: 4px 12px;
   background: #f5f5f5;
-  border-radius: 20px;
+  border-radius: 999px;
 }
 
 /* ========================================
@@ -233,12 +235,13 @@
 
 .kpi-card {
   background: #fff;
-  border-radius: 12px;
+  border: 1px solid #f0f1f3;
+  border-radius: 16px;
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   border-left: 4px solid #ddd;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -249,8 +252,8 @@
 }
 
 .kpi-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -313,7 +316,8 @@
   gap: 8px;
   padding: 8px 16px;
   background: #fff;
-  border-radius: 20px;
+  border: 1px solid #f0f1f3;
+  border-radius: 999px;
   font-size: 13px;
   color: #666;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -333,16 +337,17 @@
 
 .table-card {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f1f3;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   overflow: hidden;
   margin-bottom: 20px;
 }
 
 .table-header {
   padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+  border-bottom: 1px solid #f0f1f3;
+  background: #fafbfc;
 }
 
 .table-header h3 {
@@ -370,28 +375,32 @@
 }
 
 .table-body table thead th {
-  padding: 10px 16px;
-  font-size: 11px;
+  padding: 14px 16px;
+  font-size: 12px;
   font-weight: 700;
-  color: #999;
+  color: #6b7280;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid #f0f0f0;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid #f0f1f3;
   position: sticky;
   top: 0;
-  background: #fff;
+  background: #fafbfc;
   white-space: nowrap;
 }
 
 .table-body table tbody td {
-  padding: 10px 16px;
+  padding: 13px 16px;
   font-size: 13px;
   color: #333;
-  border-bottom: 1px solid #f8f8f8;
+  border-bottom: 1px solid #f4f5f6;
+}
+
+.table-body table tbody tr:nth-child(odd) {
+  background-color: #fbfbfc;
 }
 
 .table-body table tbody tr:hover {
-  background: #fafafa;
+  background: #fdf8ea;
 }
 
 .table-body table tbody tr:last-child td {
@@ -401,8 +410,8 @@
 .table-body table tfoot td {
   padding: 12px 16px;
   font-size: 13px;
-  background: #fafafa;
-  border-top: 2px solid #e0e0e0;
+  background: #fafbfc;
+  border-top: 2px solid #eceef1;
 }
 
 .text-center { text-align: center; }
@@ -430,47 +439,47 @@
 }
 
 .revenue-cell {
-  color: #4CAF50;
+  color: #1a9f4c;
   font-weight: 600;
 }
 
 .cost-cell {
-  color: #e74c3c;
+  color: #d63333;
   font-weight: 600;
 }
 
 .profit-positive {
-  color: #2e7d32;
+  color: #1a9f4c;
   font-weight: 700;
 }
 
 .profit-negative {
-  color: #c62828;
+  color: #d63333;
   font-weight: 700;
 }
 
 /* Margin Badge */
 .margin-badge {
   display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 4px 11px;
+  border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
 }
 
 .margin-good {
-  background: rgba(76, 175, 80, 0.1);
-  color: #4CAF50;
+  background: #e8f9ea;
+  color: #1a9f4c;
 }
 
 .margin-ok {
-  background: rgba(255, 152, 0, 0.1);
-  color: #FF9800;
+  background: #fff4df;
+  color: #b8790a;
 }
 
 .margin-low {
-  background: rgba(231, 76, 60, 0.1);
-  color: #e74c3c;
+  background: #fde8e8;
+  color: #d63333;
 }
 
 /* Table Empty State */
@@ -507,9 +516,9 @@
   align-items: center;
   gap: 14px;
   padding: 18px 20px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fff;
-  border: 2px solid #f0f0f0;
+  border: 2px solid #f0f1f3;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -521,7 +530,7 @@
 .period-total-icon {
   width: 44px;
   height: 44px;
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -591,8 +600,8 @@
 
 .payment-method-card {
   background: #fff;
-  border: 2px solid #e8e8e8;
-  border-radius: 10px;
+  border: 2px solid #eceef1;
+  border-radius: 12px;
   padding: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -622,7 +631,7 @@
 .pm-total {
   font-size: 20px;
   font-weight: 700;
-  color: #4CAF50;
+  color: #1a9f4c;
   margin-bottom: 4px;
 }
 

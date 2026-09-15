@@ -81,8 +81,8 @@
           <td data-label="Nombre" class="name-cell">{{ product.name }}</td>
           <td data-label="Código"><span class="code-badge">{{ product.code }}</span></td>
           <td data-label="Costo" class="price-cell">{{ formatPrice(product.cost) }}</td>
-          <td data-label="Precio Final" class="price-cell price-final">{{ formatPrice(product.finalPrice) }}</td>
-          <td data-label="Ganancia" class="price-cell profit-cell">{{ formatPrice(product.profit) }}</td>
+          <td data-label="Precio Final" class="price-cell price-final"><span class="price-pill">{{ formatPrice(product.finalPrice) }}</span></td>
+          <td data-label="Ganancia" class="price-cell profit-cell"><span class="profit-pill">{{ formatPrice(product.profit) }}</span></td>
           <td data-label="Stock Actual">
             <span class="stock-badge" [ngClass]="{ 'low-stock': product.stockActual < product.stockMin }">
               {{ product.stockActual }}

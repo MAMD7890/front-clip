@@ -48,16 +48,16 @@
 }
 
 .btn-import {
-  background-color: #11cdef;
+  background-color: #2CA8FF;
   color: white;
   border: none;
   padding: 10px 22px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(17, 205, 239, 0.25);
+  box-shadow: 0 2px 8px rgba(44, 168, 255, 0.25);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -65,8 +65,8 @@
 }
 
 .btn-import:hover {
-  background-color: #0aa3b3;
-  box-shadow: 0 4px 14px rgba(17, 205, 239, 0.35);
+  background-color: #1f8fe0;
+  box-shadow: 0 4px 14px rgba(44, 168, 255, 0.35);
 }
 
 .btn-create {
@@ -74,7 +74,7 @@
   color: #1a1a1a;
   border: none;
   padding: 10px 22px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -160,28 +160,29 @@
 
 .search-input {
   width: 100%;
-  padding: 10px 14px 10px 42px;
-  border: 2px solid #e8e8e8;
-  border-radius: 8px;
+  padding: 9px 14px 9px 42px;
+  border: 1.5px solid #eceef1;
+  border-radius: 10px;
   font-size: 14px;
   font-family: 'Roboto', sans-serif;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   background: white;
 }
 
 .search-input:focus {
   outline: none;
   border-color: #fdc830;
+  box-shadow: 0 0 0 3px rgba(253, 200, 48, 0.15);
 }
 
 .filter-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 9px 16px;
   background: white;
-  border: 2px solid #e8e8e8;
-  border-radius: 8px;
+  border: 1.5px solid #eceef1;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   color: #666;
@@ -213,9 +214,9 @@
   justify-content: center;
   min-width: 22px;
   height: 22px;
-  background: #ff6b6b;
+  background: #FF3636;
   color: white;
-  border-radius: 11px;
+  border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
   margin-left: 4px;
@@ -265,10 +266,10 @@
 
 .products-table-container {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
-  border: 1px solid #eee;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f0f1f3;
 }
 
 .products-table {
@@ -278,18 +279,18 @@
 }
 
 .products-table thead {
-  background: #fafafa;
-  border-bottom: 2px solid #eee;
+  background: #fafbfc;
+  border-bottom: 1px solid #f0f1f3;
 }
 
 .products-table th {
   padding: 14px 16px;
   text-align: left;
-  font-weight: 600;
-  color: #555;
+  font-weight: 700;
+  color: #6b7280;
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   white-space: nowrap;
 }
 
@@ -298,7 +299,7 @@
 }
 
 .products-table tbody tr {
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f4f5f6;
   transition: background-color 0.15s ease;
 }
 
@@ -306,8 +307,12 @@
   border-bottom: none;
 }
 
+.products-table tbody tr:nth-child(odd) {
+  background-color: #fbfbfc;
+}
+
 .products-table tbody tr:hover {
-  background-color: #fffdf3;
+  background-color: #fdf8ea;
 }
 
 .products-table td {
@@ -322,13 +327,13 @@
 }
 
 .code-badge {
-  background-color: #f3f3f3;
+  background-color: #eef2ff;
   font-family: 'Courier New', monospace;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 12px;
-  border-radius: 4px;
+  border-radius: 999px;
   padding: 4px 10px;
-  color: #555;
+  color: #4048c9;
   display: inline-block;
 }
 
@@ -337,29 +342,39 @@
   font-variant-numeric: tabular-nums;
 }
 
-.price-final {
-  color: #e6a800;
+.price-pill {
+  display: inline-block;
   font-weight: 700;
+  color: #a87f00;
+  background: #fff7de;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
 }
 
-.profit-cell {
-  color: #2e7d32;
-  font-weight: 600;
+.profit-pill {
+  display: inline-block;
+  font-weight: 700;
+  color: #1a9f4c;
+  background: #e8f9ea;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
 }
 
 .stock-badge {
   display: inline-block;
   font-weight: 700;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 13px;
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background-color: #e8f9ea;
+  color: #1a9f4c;
 }
 
 .stock-badge.low-stock {
-  background-color: #ffebee;
-  color: #c62828;
+  background-color: #fff4df;
+  color: #b8790a;
 }
 
 .actions-cell {
@@ -374,7 +389,7 @@
   cursor: pointer;
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -464,7 +479,7 @@
 
 .modal-container {
   background: white;
-  border-radius: 14px;
+  border-radius: 16px;
   width: 100%;
   max-width: 660px;
   max-height: 90vh;
@@ -487,7 +502,7 @@
   position: sticky;
   top: 0;
   background: white;
-  border-radius: 14px 14px 0 0;
+  border-radius: 16px 16px 0 0;
   z-index: 1;
 }
 
@@ -553,19 +568,19 @@
 }
 
 .form-control {
-  padding: 10px 12px;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 8px;
+  padding: 9px 12px;
+  border: 1.5px solid #eceef1;
+  border-radius: 10px;
   font-size: 14px;
   font-family: 'Roboto', sans-serif;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   background: white;
 }
 
 .form-control:focus {
   outline: none;
   border-color: #fdc830;
-  box-shadow: 0 0 0 3px rgba(253, 200, 48, 0.1);
+  box-shadow: 0 0 0 3px rgba(253, 200, 48, 0.15);
 }
 
 .form-control.is-invalid {
@@ -590,7 +605,7 @@
 .btn {
   padding: 10px 22px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -613,12 +628,12 @@
 }
 
 .btn-secondary {
-  background-color: #f0f0f0;
-  color: #555;
+  background-color: #f1f2f4;
+  color: #333;
 }
 
 .btn-secondary:hover {
-  background-color: #e0e0e0;
+  background-color: #e6e7ea;
 }
 
 .btn:disabled {
@@ -687,9 +702,9 @@
 }
 
 .confirm-icon.warning {
-  background: #fff3cd;
-  color: #ff6b6b;
-  border: 2px solid #ffc107;
+  background: #fde8e8;
+  color: #FF3636;
+  border: 2px solid #f6d4d4;
 }
 
 @keyframes iconBounce {
@@ -725,15 +740,15 @@
 }
 
 .btn-danger {
-  background-color: #ff6b6b;
+  background-color: #FF3636;
   color: white;
   border: none;
-  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.25);
+  box-shadow: 0 2px 8px rgba(255, 54, 54, 0.25);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: #e74c3c;
-  box-shadow: 0 4px 14px rgba(255, 107, 107, 0.35);
+  background-color: #e02020;
+  box-shadow: 0 4px 14px rgba(255, 54, 54, 0.35);
 }
 
 .btn-danger:disabled {
@@ -749,8 +764,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-top: 1px solid #eee;
-  background: #fafafa;
+  border-top: 1px solid #f0f1f3;
+  background: #fafbfc;
   flex-wrap: wrap;
   gap: 16px;
 }
@@ -770,11 +785,11 @@
 
 .btn-paginate {
   background: white;
-  border: 1.5px solid #e0e0e0;
+  border: 1px solid #e4e6e9;
   color: #555;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: 999px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -785,9 +800,9 @@
 }
 
 .btn-paginate:hover:not(:disabled) {
+  background: #fdc830;
+  color: #1a1a1a;
   border-color: #fdc830;
-  background: #fffdf3;
-  color: #fdc830;
 }
 
 .btn-paginate:disabled {
@@ -807,11 +822,11 @@
 
 .page-btn {
   background: white;
-  border: 1.5px solid #e0e0e0;
+  border: 1px solid #e4e6e9;
   color: #555;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: 999px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -820,15 +835,16 @@
 }
 
 .page-btn:hover {
+  background: #fdc830;
+  color: #1a1a1a;
   border-color: #fdc830;
-  background: #fffdf3;
-  color: #fdc830;
 }
 
 .page-btn.active {
   background: #fdc830;
   border-color: #fdc830;
   color: #1a1a1a;
+  font-weight: 700;
   box-shadow: 0 2px 8px rgba(253, 200, 48, 0.25);
 }
 
@@ -939,7 +955,7 @@
   }
 
   .products-table-container {
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: visible;
   }
 
@@ -1033,7 +1049,7 @@
 
   .modal-container {
     max-height: 92vh;
-    border-radius: 14px 14px 0 0;
+    border-radius: 16px 16px 0 0;
   }
 
   .modal-header {

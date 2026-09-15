@@ -1,11 +1,13 @@
 <div class="app-sidebar-panel" [class.sidebar-open]="isOpen" [class.sidebar-collapsed]="!isOpen && !isMobile">
   <nav class="sidebar-nav">
-    <a *ngFor="let item of menuItems" 
+    <a *ngFor="let item of menuItems"
        [routerLink]="item.route"
        [class.active]="isActive(item.route)"
        class="nav-item"
        (click)="onMenuClick()">
-      <i class="now-ui-icons nav-icon" [ngClass]="item.iconClass"></i>
+      <span class="nav-icon-wrap">
+        <i class="now-ui-icons nav-icon" [ngClass]="item.iconClass"></i>
+      </span>
       <span class="nav-label" *ngIf="isOpen">{{ item.label }}</span>
     </a>
   </nav>

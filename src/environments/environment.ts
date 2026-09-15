@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'https://52-15-186-80.nip.io'
+  apiBaseUrl: 'http://localhost:8080'
 };

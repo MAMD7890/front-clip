@@ -46,9 +46,10 @@
 
 .card {
   background: #fff;
-  border: 1px solid #ececec;
-  border-radius: 12px;
-  padding: 18px;
+  border: 1px solid #f0f1f3;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  padding: 24px;
 }
 
 .form-grid {
@@ -71,14 +72,16 @@
 }
 
 .form-control {
-  border: 2px solid #ececec;
-  border-radius: 8px;
-  padding: 9px 10px;
+  border: 1.5px solid #eceef1;
+  border-radius: 10px;
+  padding: 9px 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-control:focus {
   outline: none;
   border-color: #fdc830;
+  box-shadow: 0 0 0 3px rgba(253, 200, 48, 0.15);
 }
 
 .items-header {
@@ -97,8 +100,8 @@
 
 .items-table-wrapper {
   overflow-x: auto;
-  border: 1px solid #efefef;
-  border-radius: 10px;
+  border: 1px solid #f0f1f3;
+  border-radius: 14px;
 }
 
 .items-table {
@@ -108,32 +111,57 @@
 }
 
 .items-table th {
-  background: #fafafa;
+  background: #fafbfc;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  color: #555;
-  padding: 12px;
+  color: #6b7280;
+  font-weight: 700;
+  padding: 14px 12px;
+  border-bottom: 1px solid #f0f1f3;
 }
 
 .items-table td {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #f4f5f6;
   padding: 10px 12px;
+}
+
+.items-table tbody tr:nth-child(odd) {
+  background-color: #fbfbfc;
+}
+
+.items-table tbody tr:hover {
+  background-color: #fdf8ea;
 }
 
 .line-total {
   font-weight: 700;
-  color: #1f6f1f;
+}
+
+.money-pill {
+  display: inline-block;
+  font-weight: 700;
+  color: #a87f00;
+  background: #fff7de;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .btn-icon {
   border: none;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 10px;
   background: #ffebee;
   color: #c62828;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: #ffd6dc;
 }
 
 .payments-section {
@@ -151,10 +179,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid #ececec;
-  padding: 10px;
-  border-radius: 8px;
+  border: 1.5px solid #eceef1;
+  padding: 10px 12px;
+  border-radius: 10px;
   background: #fcfcfc;
+  transition: all 0.2s ease;
+}
+
+.check-item:hover {
+  border-color: #fdc830;
+  background: #fffdf4;
 }
 
 .error-message {
@@ -165,10 +199,11 @@
 
 .sale-total {
   margin-top: 18px;
-  padding: 14px 16px;
-  border-radius: 8px;
+  padding: 16px 18px;
+  border-radius: 14px;
   background: #fffdf3;
   border: 1px solid #f8edbf;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -192,17 +227,32 @@
   font-weight: 700;
 }
 
+.total-pill {
+  display: inline-block;
+  font-weight: 700;
+  color: #1a1a1a;
+  background: #fdc830;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 17px;
+  box-shadow: 0 2px 8px rgba(253, 200, 48, 0.35);
+}
+
 .total-row.change-row strong {
   font-size: 18px;
   font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 12px;
 }
 
 .total-row.change-row strong.positive {
-  color: #28a745;
+  color: #139c0c;
+  background: rgba(24, 206, 15, 0.12);
 }
 
 .total-row.change-row strong.negative {
-  color: #dc3545;
+  color: #d32f2f;
+  background: rgba(255, 54, 54, 0.12);
 }
 
 .actions {
@@ -214,10 +264,11 @@
 
 .btn {
   border: none;
-  border-radius: 8px;
-  padding: 10px 14px;
+  border-radius: 10px;
+  padding: 10px 16px;
   cursor: pointer;
   font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
@@ -225,9 +276,18 @@
   color: #1a1a1a;
 }
 
+.btn-primary:hover:not(:disabled) {
+  background: #f5ba1a;
+  box-shadow: 0 4px 10px rgba(253, 200, 48, 0.35);
+}
+
 .btn-secondary {
-  background: #efefef;
+  background: #f1f2f4;
   color: #333;
+}
+
+.btn-secondary:hover {
+  background: #e6e7ea;
 }
 
 .loading-spinner {
@@ -260,7 +320,7 @@
   padding: 10px 14px;
   background-color: #fff8e1;
   border: 1px solid #ffca28;
-  border-radius: 6px;
+  border-radius: 10px;
   color: #856404;
   font-size: 13px;
 }
@@ -280,4 +340,84 @@
   font-size: 12px;
   margin-top: 4px;
   display: block;
+}
+
+/* Modal de confirmación de impresión */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+}
+
+.modal-container {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid #f0f1f3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-header h2 i {
+  color: #fdc830;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close:hover:not(:disabled) {
+  background-color: #f1f2f4;
+}
+
+.modal-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-body {
+  padding: 18px;
+  color: #444;
+  font-size: 14px;
+}
+
+.print-confirm-modal .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 18px 18px;
+}
+
+.print-confirm-modal .btn i {
+  margin-right: 4px;
 }
